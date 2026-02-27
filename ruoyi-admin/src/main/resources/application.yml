@@ -68,7 +68,8 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: localhost
+#    host: 127.0.0.1
+    host: 111.229.198.78
     # 端口，默认为6379
     port: 6379
     # 数据库索引
@@ -127,3 +128,13 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+# --- 独立的 ClickHouse 配置 (不与若依原生配置冲突) ---
+clickhouse:
+  url: jdbc:clickhouse://111.229.198.78:8123/default
+  username: default
+  password: zst745820.
+  driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+  # 连接池参数 (可选)
+  max-active: 10
+  min-idle: 5
