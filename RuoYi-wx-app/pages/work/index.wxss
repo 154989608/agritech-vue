@@ -1,0 +1,77 @@
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  margin: 0 16rpx 16rpx 0;
+  padding: 14rpx 22rpx;
+  border-radius: 999rpx;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 24rpx;
+}
+
+.filter-pill--active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.task-item + .task-item {
+  margin-top: 22rpx;
+  padding-top: 22rpx;
+  border-top: 1px solid #eef2f7;
+}
+
+.task-item__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-item__title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.task-item__status {
+  font-size: 22rpx;
+  color: #1d4ed8;
+  background: #eff6ff;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+}
+
+.task-item__owner {
+  display: block;
+  margin-top: 10rpx;
+  color: #6b7280;
+  font-size: 24rpx;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+}
+
+.progress__bar {
+  flex: 1;
+  height: 12rpx;
+  background: #e5e7eb;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress__inner {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+}
+
+.progress__text {
+  width: 72rpx;
+  text-align: right;
+  color: #6b7280;
+  font-size: 22rpx;
+  margin-left: 18rpx;
+}

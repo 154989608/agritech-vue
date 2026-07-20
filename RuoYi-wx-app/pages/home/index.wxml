@@ -1,0 +1,46 @@
+<view class="page page--tab page--home">
+  <view class="home-top">
+    <view class="home-search" bindtap="goSearch"><text class="home-search__icon">搜</text><text class="home-search__text">搜索黄精、山货、礼盒</text></view>
+    <view class="home-actions"><view class="home-actions__btn">···</view><view class="home-actions__btn">●</view></view>
+  </view>
+  <view class="card card--soft hero-card">
+    <view class="hero-card__content">
+      <text class="pill">农产品直供</text><text class="hero-card__title">{{greeting}}，选点山里好货</text>
+      <text class="hero-card__desc">黄精、山货、礼盒一站式选购，源头直采更安心。</text>
+      <view class="hero-card__tags"><text class="hero-card__tag" wx:for="{{featuredBanners}}" wx:key="title">{{item.tag}}</text></view>
+      <view class="hero-card__actions"><button class="btn-primary hero-card__btn" bindtap="goSearch">立即选购</button><button class="btn-secondary hero-card__btn" bindtap="goCategory" data-id="huangjing">看看黄精</button></view>
+    </view>
+    <view class="hero-card__art"><view class="hero-card__poster">
+      <view class="hero-card__poster-img"></view><view class="hero-card__poster-mask"></view>
+    </view></view>
+  </view>
+  <view class="promo-grid">
+    <view class="promo-card {{index === 0 ? 'promo-card--wide' : ''}} promo-card--{{item.tint}}" wx:for="{{homePromos}}" wx:for-index="index" wx:key="title">
+      <text class="promo-card__title">{{item.title}}</text><text class="promo-card__desc">{{item.desc}}</text><text class="promo-card__btn">{{item.button}}</text>
+    </view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">农产品分类</text><text class="section-title__sub">查看全部</text></view>
+    <view class="category-grid">
+      <view class="category-item" wx:for="{{homeCategories}}" wx:key="id" bindtap="goCategory" data-id="{{item.id}}">
+        <view class="category-item__icon" style="background: {{item.color}};">{{item.icon}}</view><text class="category-item__name">{{item.name}}</text><text class="category-item__desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">公司店铺</text><text class="section-title__sub">企业直发</text></view>
+    <view class="store-list"><view class="store-card">
+      <view class="store-card__head">
+        <view><text class="store-card__name">{{featuredStore.name}}</text><text class="store-card__tip">{{featuredStore.tip}}</text></view>
+        <view class="store-card__stats"><text class="store-card__sold">已售 {{featuredStore.sold}}</text><text class="store-card__enter">进店 ›</text></view>
+      </view>
+      <view class="store-card__meta"><text class="chip chip--warm">{{featuredStore.minOrder}}</text><text class="chip">{{featuredStore.badge}}</text></view>
+      <view class="store-goods">
+        <view class="store-good" wx:for="{{featuredStore.products}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+          <view class="store-good__cover" style="background: {{item.bg}};"></view><text class="store-good__name">{{item.title}}</text><text class="store-good__price">¥{{item.price}}</text>
+        </view>
+      </view>
+    </view></view>
+  </view>
+  <app-tabbar current="/pages/home/index" />
+</view>

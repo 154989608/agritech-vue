@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/category/index",
+    "pages/cart/index",
+    "pages/profile/index",
+    "pages/search/index",
+    "pages/product/detail/index",
+    "pages/order/list/index",
+    "pages/order/confirm/index",
+    "pages/address/list/index",
+    "pages/login/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "RuoYi Shop",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#f6f7fb"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

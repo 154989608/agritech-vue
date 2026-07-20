@@ -1,0 +1,13 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title"><text>工作台</text><text class="subtle">任务总览</text></view>
+    <view class="filter-row"><view class="filter-pill {{activeFilter === item ? 'filter-pill--active' : ''}}" wx:for="{{filters}}" wx:key="*this" bindtap="switchFilter" data-filter="{{item}}"><text>{{item}}</text></view></view>
+  </view>
+  <view class="card"><view class="task-list">
+    <view class="task-item" wx:for="{{workItems}}" wx:key="title">
+      <view class="task-item__head"><text class="task-item__title">{{item.title}}</text><text class="task-item__status">{{item.status}}</text></view>
+      <text class="task-item__owner">负责人：{{item.owner}}</text>
+      <view class="progress"><view class="progress__bar"><view class="progress__inner" style="width: {{item.progress}}%;"></view></view><text class="progress__text">{{item.progress}}%</text></view>
+    </view>
+  </view></view>
+</view>

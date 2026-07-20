@@ -1,0 +1,96 @@
+.confirm-page {
+  padding-bottom: 220rpx;
+}
+
+.address-card {
+  padding: 20rpx;
+  border-radius: 20rpx;
+  background: #f8fafc;
+}
+
+.address-card__name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.address-card__phone,
+.address-card__detail {
+  display: block;
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 22rpx;
+}
+
+.confirm-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 0;
+}
+
+.confirm-item + .confirm-item {
+  border-top: 1px solid #eef2f7;
+}
+
+.confirm-item__cover {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 18rpx;
+  flex: none;
+}
+
+.confirm-item__body {
+  flex: 1;
+}
+
+.confirm-item__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.confirm-item__sku {
+  display: block;
+  margin-top: 6rpx;
+  color: #64748b;
+  font-size: 22rpx;
+}
+
+.confirm-item__price {
+  color: #ea580c;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.pay-option {
+  padding: 20rpx;
+  border-radius: 20rpx;
+  background: #f8fafc;
+  font-size: 28rpx;
+}
+
+.submit-bar {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 18rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18rpx 50rpx rgba(15, 23, 42, 0.16);
+}
+
+.submit-bar__total {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.submit-bar__btn {
+  width: 260rpx;
+  border-radius: 18rpx;
+}

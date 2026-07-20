@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimBusLanesMapper">
+
+    <resultMap type="com.ruoyi.domain.DimBusLanes" id="DimBusLanesResult">
+        <result property="roadName" column="road_name"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="laneType" column="lane_type"/>
+        <result property="lengthKm" column="length_km"/>
+        <result property="direction" column="direction"/>
+        <result property="timeLimit" column="time_limit"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+    </resultMap>
+
+    <sql id="selectDimBusLanesVo">
+        select road_name, start_point, end_point, lane_type, length_km, 
+               direction, time_limit, longitude, latitude
+        from dim_bus_lanes
+    </sql>
+
+    <select id="selectDimBusLanesList" parameterType="com.ruoyi.domain.DimBusLanes" resultMap="DimBusLanesResult">
+        <include refid="selectDimBusLanesVo"/>
+        <where>
+            <if test="roadName != null and roadName != ''">
+                AND road_name like concat('%', #{roadName}, '%')
+            </if>
+            <if test="laneType != null and laneType != ''">
+                AND lane_type = #{laneType}
+            </if>
+            <if test="direction != null and direction != ''">
+                AND direction = #{direction}
+            </if>
+        </where>
+        order by road_name, start_point
+    </select>
+
+    <select id="getAllBusLanesBasicInfo" resultType="Map">
+        SELECT road_name as roadName,
+               start_point as startPoint,
+               end_point as endPoint,
+               lane_type as laneType,
+               length_km as lengthKm,
+               direction,
+               time_limit as timeLimit,
+               longitude,
+               latitude
+        FROM dim_bus_lanes
+        ORDER BY road_name
+    </select>
+
+    <select id="countLengthByType" resultType="Map">
+        SELECT lane_type as laneType,
+               COUNT(*) as count,
+               SUM(length_km) as totalLengthKm,
+               AVG(length_km) as avgLengthKm
+        FROM dim_bus_lanes
+        GROUP BY lane_type
+        ORDER BY totalLengthKm DESC
+    </select>
+
+    <select id="getLineCoverage" resultType="Map">
+        SELECT l.line_name as lineName,
+               COUNT(DISTINCT b.road_name) as busLaneCount,
+               SUM(b.length_km) as totalBusLaneLength,
+               CAST(COUNT(DISTINCT b.road_name) AS DECIMAL(10,2)) / 
+                   NULLIF((SELECT COUNT(DISTINCT r.stop_name) FROM dim_route_station_details r WHERE r.line_name = l.line_name), 0) * 100 as coverageRate
+        FROM dim_lines l
+        LEFT JOIN dim_route_station_details r ON l.line_name = r.line_name
+        LEFT JOIN dim_bus_lanes b ON ST_Distance_Sphere(
+            point(r.longitude, r.latitude),
+            point(b.longitude, b.latitude)
+        ) &lt;= 500
+        WHERE l.line_name = #{lineName}
+        GROUP BY l.line_name
+    </select>
+
+    <select id="getGisDisplayData" resultType="Map">
+        SELECT road_name as roadName,
+               start_point as startPoint,
+               end_point as endPoint,
+               lane_type as laneType,
+               length_km as lengthKm,
+               direction,
+               time_limit as timeLimit,
+               longitude,
+               latitude,
+               CASE lane_type
+                   WHEN '主干道' THEN '#FF0000'
+                   WHEN '次干道' THEN '#FFA500'
+                   WHEN '支路' THEN '#FFFF00'
+                   ELSE '#00FF00'
+               END as color
+        FROM dim_bus_lanes
+        WHERE longitude IS NOT NULL AND latitude IS NOT NULL
+        ORDER BY road_name
+    </select>
+
+</mapper>

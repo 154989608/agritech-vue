@@ -1,0 +1,14 @@
+﻿<view class="tabbar">
+  <view
+    wx:for="{{tabs}}"
+    wx:key="pagePath"
+    class="tabbar__item {{current === item.pagePath ? 'is-active' : ''}}"
+    bindtap="switchPage"
+    data-path="{{item.pagePath}}"
+  >
+    <text class="tabbar__icon">{{item.short}}</text>
+    <text class="tabbar__text">{{item.text}}</text>
+  </view>
+</view>
+
+

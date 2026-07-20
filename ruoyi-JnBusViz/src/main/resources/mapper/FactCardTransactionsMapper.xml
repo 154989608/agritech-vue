@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.FactCardTransactionsMapper">
+
+    <resultMap type="com.ruoyi.domain.FactCardTransactions" id="FactCardTransactionsResult">
+        <result property="txTime" column="tx_time"/>
+        <result property="cardId" column="card_id"/>
+        <result property="lineName" column="line_name"/>
+        <result property="stopName" column="stop_name"/>
+        <result property="cardType" column="card_type"/>
+        <result property="basePrice" column="base_price"/>
+        <result property="actualAmount" column="actual_amount"/>
+        <result property="isTransfer" column="is_transfer"/>
+        <result property="policySupport" column="policy_support"/>
+        <result property="statYear" column="stat_year"/>
+        <result property="statMonth" column="stat_month"/>
+        <result property="statDay" column="stat_day"/>
+        <result property="statHour" column="stat_hour"/>
+    </resultMap>
+
+    <sql id="selectFactCardTransactionsVo">
+        select tx_time, card_id, line_name, stop_name, card_type, base_price, 
+               actual_amount, is_transfer, policy_support, stat_year, stat_month, stat_day, stat_hour
+        from fact_card_transactions
+    </sql>
+
+    <select id="selectFactCardTransactionsList" parameterType="com.ruoyi.domain.FactCardTransactions" resultMap="FactCardTransactionsResult">
+        <include refid="selectFactCardTransactionsVo"/>
+        <where>
+            <if test="cardId != null and cardId != ''">
+                AND card_id = #{cardId}
+            </if>
+            <if test="lineName != null and lineName != ''">
+                AND line_name = #{lineName}
+            </if>
+            <if test="stopName != null and stopName != ''">
+                AND stop_name like concat('%', #{stopName}, '%')
+            </if>
+            <if test="cardType != null and cardType != ''">
+                AND card_type = #{cardType}
+            </if>
+            <if test="statYear != null">
+                AND stat_year = #{statYear}
+            </if>
+            <if test="statMonth != null">
+                AND stat_month = #{statMonth}
+            </if>
+        </where>
+        order by tx_time desc
+    </select>
+
+    <select id="getFlowByCardType" resultType="Map">
+        SELECT card_type as cardType,
+               COUNT(*) as transactionCount,
+               SUM(actual_amount) as totalAmount,
+               AVG(actual_amount) as avgAmount
+        FROM fact_card_transactions
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY card_type
+        ORDER BY transactionCount DESC
+    </select>
+
+    <select id="getTopTransferStations" resultType="Map">
+        SELECT stop_name as stopName,
+               line_name as lineName,
+               COUNT(*) as totalCount,
+               SUM(is_transfer) as transferCount,
+               CAST(SUM(is_transfer) AS DECIMAL(10,2)) / COUNT(*) * 100 as transferRate
+        FROM fact_card_transactions
+        WHERE is_transfer IS NOT NULL
+        GROUP BY stop_name, line_name
+        HAVING COUNT(*) > 100
+        ORDER BY transferRate DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="getCardTypeDistByStation" resultType="Map">
+        SELECT card_type as cardType,
+               COUNT(*) as count,
+               SUM(actual_amount) as totalAmount
+        FROM fact_card_transactions
+        WHERE stop_name = #{stopName}
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY card_type
+        ORDER BY count DESC
+    </select>
+
+    <select id="getCardTypeFlowByLine" resultType="Map">
+        SELECT card_type as cardType,
+               COUNT(*) as transactionCount,
+               SUM(actual_amount) as totalRevenue
+        FROM fact_card_transactions
+        WHERE line_name = #{lineName}
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY card_type
+        ORDER BY transactionCount DESC
+    </select>
+
+    <select id="getDailyTransactionTrend" resultType="Map">
+        SELECT DATE(tx_time) as date,
+               COUNT(*) as dailyCount,
+               SUM(actual_amount) as dailyAmount,
+               AVG(actual_amount) as avgAmount
+        FROM fact_card_transactions
+        WHERE tx_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+        GROUP BY DATE(tx_time)
+        ORDER BY date ASC
+    </select>
+
+</mapper>

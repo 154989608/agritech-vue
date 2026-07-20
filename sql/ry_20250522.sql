@@ -378,6 +378,19 @@ insert into sys_role_menu values ('2', '1059');
 insert into sys_role_menu values ('2', '1060');
 
 -- ----------------------------
+-- Visualization menu routes
+-- ----------------------------
+insert into sys_menu values('5',   '可视化大屏',  '0', '0', 'visualization',            null,                                       '', '', 1, 0, 'M', '0', '0', '', 'dashboard', 'admin', sysdate(), '', null, '可视化大屏目录');
+insert into sys_menu values('118', '运力诊断决策', '5', '1', 'capacityDiagnosis',        'visualization/capacityDiagnosis/index',    '', '', 1, 0, 'C', '0', '0', '', 'dashboard', 'admin', sysdate(), '', null, '运力诊断决策菜单');
+insert into sys_menu values('119', '时空演化分析', '5', '2', 'spaceTimeEvolution',       'visualization/spaceTimeEvolution/index',   '', '', 1, 0, 'C', '0', '0', '', 'chart',     'admin', sysdate(), '', null, '时空演化分析菜单');
+insert into sys_menu values('120', '站点热力效能', '5', '3', 'stationHeatEfficiency',    'visualization/stationHeatEfficiency/index','', '', 1, 0, 'C', '0', '0', '', 'chart',     'admin', sysdate(), '', null, '站点热力效能菜单');
+
+insert into sys_role_menu values ('2', '5');
+insert into sys_role_menu values ('2', '118');
+insert into sys_role_menu values ('2', '119');
+insert into sys_role_menu values ('2', '120');
+
+-- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门
 -- ----------------------------
 drop table if exists sys_role_dept;

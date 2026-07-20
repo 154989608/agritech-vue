@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="card search-page__bar">
+    <input class="input" placeholder="搜索商品、品牌或活动" value="{{keyword}}" bindinput="onInput" bindconfirm="onConfirm" />
+  </view>
+  <view class="card" wx:if="{{history.length}}">
+    <view class="section-title"><text class="section-title__main">热搜</text><text class="section-title__sub">最近搜索</text></view>
+    <view class="search-tags"><view class="chip chip--warm" wx:for="{{history}}" wx:key="*this" bindtap="chooseKeyword" data-keyword="{{item}}">{{item}}</view></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">搜索结果</text><text class="section-title__sub">{{results.length}} 件</text></view>
+    <view wx:if="{{results.length}}">
+      <view class="search-result" wx:for="{{results}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+        <view class="search-result__cover" style="background: {{item.bg}};"></view>
+        <view class="search-result__body">
+          <text class="search-result__title">{{item.title}}</text><text class="search-result__desc">{{item.desc}}</text>
+          <view class="search-result__foot"><text class="price">¥{{item.price}}</text><text class="search-result__meta">销量 {{item.sales}}</text></view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty"><text class="empty__title">没有找到结果</text><text class="empty__desc">换个关键词再试试。</text></view>
+  </view>
+</view>

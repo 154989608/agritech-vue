@@ -52,7 +52,7 @@ spring:
     # 国际化资源文件路径
     basename: i18n/messages
   profiles:
-    active: druid
+    active: ${SPRING_PROFILES_ACTIVE:druid}
   # 文件上传
   servlet:
     multipart:
@@ -69,15 +69,15 @@ spring:
   redis:
     # 地址
 #    host: 127.0.0.1
-    host: 111.229.198.78
+    host: ${REDIS_HOST:localhost}
     # 端口，默认为6379
-    port: 6379
+    port: ${REDIS_PORT:6379}
     # 数据库索引
-    database: 0
+    database: ${REDIS_DATABASE:0}
     # 密码
-    password:
+    password: ${REDIS_PASSWORD:}
     # 连接超时时间
-    timeout: 10s
+    timeout: ${REDIS_TIMEOUT:10s}
     lettuce:
       pool:
         # 连接池中的最小空闲连接
@@ -128,13 +128,3 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
-
-# --- 独立的 ClickHouse 配置 (不与若依原生配置冲突) ---
-clickhouse:
-  url: jdbc:clickhouse://111.229.198.78:8123/default
-  username: default
-  password: zst745820.
-  driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
-  # 连接池参数 (可选)
-  max-active: 10
-  min-idle: 5

@@ -1,0 +1,37 @@
+<view class="page page--tab">
+  <view class="card card--soft">
+    <view class="section-title">
+      <text class="section-title__main">商品分类</text>
+      <text class="section-title__sub">按类查看</text>
+    </view>
+    <view class="search-bar" bindtap="goSearch">
+      <text class="search-bar__icon">搜</text>
+      <text class="search-bar__text">搜索分类、品牌、商品</text>
+    </view>
+  </view>
+  <view class="card category-layout">
+    <view class="category-nav">
+      <view wx:for="{{categories}}" wx:key="id" class="category-nav__item {{activeCategoryId === item.id ? 'is-active' : ''}}" bindtap="selectCategory" data-id="{{item.id}}">
+        <text class="category-nav__title">{{item.name}}</text>
+        <text class="category-nav__desc">{{item.children.length}} 款</text>
+      </view>
+    </view>
+    <view class="category-panel">
+      <view class="category-banner" style="background: {{currentCategory.bg}};">
+        <text class="category-banner__title">{{currentCategory.name}}</text>
+        <text class="category-banner__desc">精选 {{categoryProducts.length}} 款热卖商品</text>
+      </view>
+      <view class="category-grid category-grid--single">
+        <view class="product-card" wx:for="{{categoryProducts}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+          <view class="product-card__cover" style="background: {{item.bg}};"><text class="product-card__tag">{{item.tag}}</text></view>
+          <view class="product-card__body">
+            <text class="product-card__title">{{item.title}}</text>
+            <text class="product-card__desc">{{item.desc}}</text>
+            <view class="product-card__foot"><text class="price">¥{{item.price}}</text><text class="product-card__meta">销量 {{item.sales}}</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <app-tabbar current="/pages/category/index" />
+</view>

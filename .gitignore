@@ -25,6 +25,9 @@ target/
 *.iml
 *.ipr
 
+### VS Code ###
+.vscode
+
 ### JRebel ###
 rebel.xml
 
@@ -39,8 +42,22 @@ nbdist/
 ######################################################################
 # Others
 *.log
+logs/
 *.xml.versionsBackup
 *.swp
+*.tmp
+*.temp
+*.bak
+.DS_Store
+
+######################################################################
+# Node / Frontend
+node_modules/
+dist/
+miniprogram_npm/
+project.private.config.json
+.env.local
+.env.*.local
 
 !*/build/*.java
 !*/build/*.html

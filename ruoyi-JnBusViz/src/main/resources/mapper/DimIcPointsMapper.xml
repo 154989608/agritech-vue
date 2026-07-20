@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimIcPointsMapper">
+
+    <resultMap type="com.ruoyi.domain.DimIcPoints" id="DimIcPointsResult">
+        <result property="pointName" column="point_name"/>
+        <result property="pointType" column="point_type"/>
+        <result property="address" column="address"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+        <result property="serviceHours" column="service_hours"/>
+        <result property="tel" column="tel"/>
+    </resultMap>
+
+    <sql id="selectDimIcPointsVo">
+        select point_name, point_type, address, longitude, latitude, 
+               service_hours, tel
+        from dim_ic_points
+    </sql>
+
+    <select id="selectDimIcPointsList" parameterType="com.ruoyi.domain.DimIcPoints" resultMap="DimIcPointsResult">
+        <include refid="selectDimIcPointsVo"/>
+        <where>
+            <if test="pointName != null and pointName != ''">
+                AND point_name like concat('%', #{pointName}, '%')
+            </if>
+            <if test="pointType != null and pointType != ''">
+                AND point_type = #{pointType}
+            </if>
+            <if test="address != null and address != ''">
+                AND address like concat('%', #{address}, '%')
+            </if>
+        </where>
+        order by point_name
+    </select>
+
+    <select id="getAllIcPointsBasicInfo" resultType="Map">
+        SELECT point_name as pointName,
+               point_type as pointType,
+               address,
+               longitude,
+               latitude,
+               service_hours as serviceHours,
+               tel
+        FROM dim_ic_points
+        ORDER BY point_name
+    </select>
+
+    <select id="countPointsByType" resultType="Map">
+        SELECT point_type as pointType,
+               COUNT(*) as count,
+               CAST(COUNT(*) AS DECIMAL(10,2)) / (SELECT COUNT(*) FROM dim_ic_points) * 100 as percentage
+        FROM dim_ic_points
+        GROUP BY point_type
+        ORDER BY count DESC
+    </select>
+
+    <select id="getGisDisplayData" resultType="Map">
+        SELECT point_name as pointName,
+               point_type as pointType,
+               address,
+               longitude,
+               latitude,
+               service_hours as serviceHours,
+               tel,
+               CASE point_type
+                   WHEN '充值点' THEN '#0000FF'
+                   WHEN '退卡点' THEN '#FF0000'
+                   WHEN '综合点' THEN '#00FF00'
+                   ELSE '#FFFF00'
+               END as color
+        FROM dim_ic_points
+        WHERE longitude IS NOT NULL AND latitude IS NOT NULL
+        ORDER BY point_name
+    </select>
+
+</mapper>

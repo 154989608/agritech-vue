@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimLinesMapper">
+
+    <resultMap type="com.ruoyi.domain.DimLines" id="DimLinesResult">
+        <result property="lineId" column="line_id"/>
+        <result property="lineName" column="line_name"/>
+        <result property="startStop" column="start_stop"/>
+        <result property="endStop" column="end_stop"/>
+        <result property="summerDepartTime" column="summer_depart_time"/>
+        <result property="summerArriveTime" column="summer_arrive_time"/>
+        <result property="winterDepartTime" column="winter_depart_time"/>
+        <result property="winterArriveTime" column="winter_arrive_time"/>
+        <result property="stopList" column="stop_list"/>
+    </resultMap>
+
+    <sql id="selectDimLinesVo">
+        select line_id, line_name, start_stop, end_stop, summer_depart_time, 
+               summer_arrive_time, winter_depart_time, winter_arrive_time, stop_list
+        from dim_lines
+    </sql>
+
+    <select id="selectDimLinesList" parameterType="com.ruoyi.domain.DimLines" resultMap="DimLinesResult">
+        <include refid="selectDimLinesVo"/>
+        <where>
+            <if test="lineName != null and lineName != ''">
+                AND line_name like concat('%', #{lineName}, '%')
+            </if>
+            <if test="startStop != null and startStop != ''">
+                AND start_stop like concat('%', #{startStop}, '%')
+            </if>
+            <if test="endStop != null and endStop != ''">
+                AND end_stop like concat('%', #{endStop}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllLinesBasicInfo" resultType="Map">
+        SELECT line_id as lineId,
+               line_name as lineName,
+               start_stop as startStop,
+               end_stop as endStop,
+               summer_depart_time as summerDepartTime,
+               winter_depart_time as winterDepartTime
+        FROM dim_lines
+        ORDER BY line_name
+    </select>
+
+    <select id="countLinesByType" resultType="Map">
+        SELECT '公交线路' as lineType,
+               COUNT(*) as count
+        FROM dim_lines
+    </select>
+
+    <select id="getLineDetail" resultType="Map">
+        SELECT d.line_id as lineId,
+               d.line_name as lineName,
+               d.start_stop as startStop,
+               d.end_stop as endStop,
+               d.summer_depart_time as summerDepartTime,
+               d.summer_arrive_time as summerArriveTime,
+               d.winter_depart_time as winterDepartTime,
+               d.winter_arrive_time as winterArriveTime,
+               (SELECT COUNT(DISTINCT s.stop_name) FROM dim_route_station_details s WHERE s.line_name = d.line_name) as stationCount
+        FROM dim_lines d
+        WHERE d.line_name = #{lineName}
+    </select>
+
+</mapper>

@@ -1,0 +1,28 @@
+<view class="page page--tab profile-page">
+  <view class="profile-header">
+    <view class="profile-header__avatar">{{userInfo.nickname.slice(0, 1)}}</view>
+    <view class="profile-header__meta">
+      <text class="profile-header__name">{{userInfo.nickname}}</text>
+      <view class="profile-header__tags"><text class="chip chip--warm">{{userInfo.role}}</text><text class="profile-header__phone">{{userInfo.mobile}}</text></view>
+    </view>
+    <view class="profile-header__poster"><view class="profile-header__poster-img"></view><view class="profile-header__poster-mask"></view></view>
+  </view>
+  <view class="card profile-wallet">
+    <view class="row"><view><text class="profile-wallet__title">我的钱包</text><text class="profile-wallet__desc">余额、权益都在这里查看</text></view><text class="profile-wallet__enter">进入钱包 ›</text></view>
+    <view class="profile-wallet__balance"><text class="profile-wallet__label">钱包余额</text><text class="profile-wallet__value">¥0</text></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">我的订单</text><text class="section-title__sub" bindtap="goOrders">全部订单</text></view>
+    <view class="profile-order-grid"><view class="profile-order-item" wx:for="{{orderItems}}" wx:key="title"><view class="profile-order-item__icon">{{item.short}}</view><text class="profile-order-item__title">{{item.title}}</text></view></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">常用服务</text><text class="section-title__sub">账户操作</text></view>
+    <view class="profile-service-grid">
+      <view class="profile-service-item" wx:for="{{serviceItems}}" wx:key="action" bindtap="handleServiceTap" data-action="{{item.action}}">
+        <view class="profile-service-item__icon" style="background: {{item.color}};">{{item.short}}</view><text class="profile-service-item__title">{{item.title}}</text>
+      </view>
+    </view>
+  </view>
+  <button class="profile-logout" bindtap="handleServiceTap" data-action="logout">退出登录</button>
+  <app-tabbar current="/pages/profile/index" />
+</view>

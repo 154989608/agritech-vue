@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimRouteStationDetailsMapper">
+
+    <resultMap type="com.ruoyi.domain.DimRouteStationDetails" id="DimRouteStationDetailsResult">
+        <result property="lineName" column="line_name"/>
+        <result property="stopName" column="stop_name"/>
+        <result property="stopOrder" column="stop_order"/>
+        <result property="direction" column="direction"/>
+        <result property="stopType" column="stop_type"/>
+        <result property="firstBusTime" column="first_bus_time"/>
+        <result property="lastBusTime" column="last_bus_time"/>
+    </resultMap>
+
+    <sql id="selectDimRouteStationDetailsVo">
+        select line_name, stop_name, stop_order, direction, stop_type, 
+               first_bus_time, last_bus_time
+        from dim_route_station_details
+    </sql>
+
+    <select id="selectDimRouteStationDetailsList" parameterType="com.ruoyi.domain.DimRouteStationDetails" resultMap="DimRouteStationDetailsResult">
+        <include refid="selectDimRouteStationDetailsVo"/>
+        <where>
+            <if test="lineName != null and lineName != ''">
+                AND line_name = #{lineName}
+            </if>
+            <if test="stopName != null and stopName != ''">
+                AND stop_name like concat('%', #{stopName}, '%')
+            </if>
+            <if test="direction != null and direction != ''">
+                AND direction = #{direction}
+            </if>
+            <if test="stopType != null and stopType != ''">
+                AND stop_type = #{stopType}
+            </if>
+        </where>
+        order by line_name, stop_order
+    </select>
+
+    <select id="getLineStationsDetail" resultType="Map">
+        SELECT r.line_name as lineName,
+               r.stop_name as stopName,
+               r.stop_order as stopOrder,
+               r.direction,
+               r.stop_type as stopType,
+               r.first_bus_time as firstBusTime,
+               r.last_bus_time as lastBusTime,
+               s.longitude,
+               s.latitude,
+               s.zone_type as zoneType
+        FROM dim_route_station_details r
+        LEFT JOIN dim_stops s ON r.stop_name = s.stop_name
+        WHERE r.line_name = #{lineName}
+        ORDER BY r.stop_order
+    </select>
+
+    <select id="calculateStationDistance" resultType="Map">
+        WITH station_coords AS (
+            SELECT r.stop_name as stopName,
+                   r.stop_order as stopOrder,
+                   s.longitude,
+                   s.latitude,
+                   lag(s.longitude) OVER (ORDER BY r.stop_order) as prevLongitude,
+                   lag(s.latitude) OVER (ORDER BY r.stop_order) as prevLatitude
+            FROM dim_route_station_details r
+            LEFT JOIN dim_stops s ON r.stop_name = s.stop_name
+            WHERE r.line_name = #{lineName}
+        )
+        SELECT stopName,
+               stopOrder,
+               longitude,
+               latitude,
+               CASE 
+                   WHEN prevLongitude IS NOT NULL AND prevLatitude IS NOT NULL 
+                   THEN round(6371 * acos(cos(radians(latitude)) * cos(radians(prevLatitude)) * 
+                        cos(radians(longitude) - radians(prevLongitude)) + 
+                        sin(radians(latitude)) * sin(radians(prevLatitude))), 2)
+                   ELSE 0 
+               END as distanceKm
+        FROM station_coords
+        ORDER BY stopOrder
+    </select>
+
+    <select id="getFirstLastBusMatchAnalysis" resultType="Map">
+        SELECT r.stop_name as stopName,
+               r.first_bus_time as firstBusTime,
+               r.last_bus_time as lastBusTime,
+               SUM(CASE WHEN f.stat_hour BETWEEN 7 AND 9 THEN f.boarding_count + f.alighting_count ELSE 0 END) as morningPeakFlow,
+               SUM(CASE WHEN f.stat_hour BETWEEN 17 AND 19 THEN f.boarding_count + f.alighting_count ELSE 0 END) as eveningPeakFlow,
+               CAST(SUM(CASE WHEN f.stat_hour BETWEEN 7 AND 9 THEN f.boarding_count + f.alighting_count ELSE 0 END) AS DECIMAL(10,2)) / 
+                   NULLIF(SUM(f.boarding_count + f.alighting_count), 0) * 100 as morningPeakRate,
+               CAST(SUM(CASE WHEN f.stat_hour BETWEEN 17 AND 19 THEN f.boarding_count + f.alighting_count ELSE 0 END) AS DECIMAL(10,2)) / 
+                   NULLIF(SUM(f.boarding_count + f.alighting_count), 0) * 100 as eveningPeakRate
+        FROM dim_route_station_details r
+        LEFT JOIN fact_station_flow f ON r.stop_name = f.stop_name 
+            AND r.line_name = f.line_name
+            AND DATE(f.stat_time) = #{date}
+        WHERE r.line_name = #{lineName}
+        GROUP BY r.stop_name, r.first_bus_time, r.last_bus_time
+        ORDER BY morningPeakRate DESC
+    </select>
+
+    <select id="getStationCoverageAnalysis" resultType="Map">
+        SELECT r.stop_name as stopName,
+               COUNT(DISTINCT r.line_name) as lineCount,
+               SUM(f.boarding_count + f.alighting_count) as totalFlow,
+               AVG(f.load_factor) as avgLoadFactor,
+               MAX(f.boarding_count + f.alighting_count) as maxHourlyFlow
+        FROM dim_route_station_details r
+        LEFT JOIN fact_station_flow f ON r.stop_name = f.stop_name AND r.line_name = f.line_name
+        WHERE r.stop_name = #{stopName}
+        GROUP BY r.stop_name
+    </select>
+
+</mapper>

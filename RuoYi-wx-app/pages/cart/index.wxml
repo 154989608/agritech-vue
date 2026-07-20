@@ -1,0 +1,25 @@
+<view class="page page--tab">
+  <view class="card card--soft">
+    <view class="row"><text class="section-title__main">购物车</text><text class="section-title__sub" bindtap="toggleAll">{{summary.allSelected ? '取消全选' : '全选'}}</text></view>
+  </view>
+  <block wx:if="{{!empty}}">
+    <view class="card cart-item" wx:for="{{cartItems}}" wx:key="id">
+      <view class="cart-item__check {{item.selected ? 'is-checked' : ''}}" bindtap="toggleItem" data-id="{{item.id}}"></view>
+      <view class="cart-item__cover" style="background: {{item.bg}};"></view>
+      <view class="cart-item__body">
+        <text class="cart-item__title">{{item.title}}</text><text class="cart-item__sku">{{item.sku}}</text>
+        <view class="cart-item__foot">
+          <text class="price">¥{{item.price}}</text>
+          <view class="stepper"><text class="stepper__btn" bindtap="changeCount" data-id="{{item.id}}" data-type="minus">-</text><text class="stepper__value">{{item.count}}</text><text class="stepper__btn" bindtap="changeCount" data-id="{{item.id}}" data-type="plus">+</text></view>
+        </view>
+      </view>
+    </view>
+    <view class="card summary-card">
+      <view class="summary-row"><text>已选 {{summary.count}} 件</text><text class="price">¥{{summary.total}}</text></view>
+      <view class="summary-row summary-row--muted"><text class="muted">满 199 免运费</text><text class="muted">支持微信支付</text></view>
+      <button class="btn-primary summary-card__btn" bindtap="goCheckout">去结算</button>
+    </view>
+  </block>
+  <view wx:else class="card empty"><text class="empty__title">购物车空空的</text><text class="empty__desc">去首页或者分类页挑选几件好物吧。</text><button class="btn-primary empty__btn" bindtap="goHome">去逛逛</button></view>
+  <app-tabbar current="/pages/cart/index" />
+</view>

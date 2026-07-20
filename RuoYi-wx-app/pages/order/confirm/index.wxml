@@ -1,0 +1,16 @@
+<view class="page confirm-page">
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">收货地址</text><text class="section-title__sub">默认地址</text></view>
+    <view class="address-card"><text class="address-card__name">{{address.name}}</text><text class="address-card__phone">{{address.phone}}</text><text class="address-card__detail">{{address.detail}}</text></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">商品清单</text><text class="section-title__sub">{{summary.count}} 件</text></view>
+    <view class="confirm-item" wx:for="{{items}}" wx:key="id">
+      <view class="confirm-item__cover" style="background: {{item.bg}};"></view>
+      <view class="confirm-item__body"><text class="confirm-item__title">{{item.title}}</text><text class="confirm-item__sku">{{item.sku}}</text></view>
+      <text class="confirm-item__price">¥{{item.price}}</text>
+    </view>
+  </view>
+  <view class="card"><view class="section-title"><text class="section-title__main">支付方式</text><text class="section-title__sub">微信支付</text></view><view class="pay-option">微信支付</view></view>
+  <view class="submit-bar"><text class="submit-bar__total">合计 ¥{{summary.total}}</text><button class="btn-primary submit-bar__btn" bindtap="submitOrder">提交订单</button></view>
+</view>

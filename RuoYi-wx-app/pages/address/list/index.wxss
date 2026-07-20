@@ -1,0 +1,27 @@
+.address-item {
+  padding: 20rpx 0;
+}
+
+.address-item + .address-item {
+  border-top: 1px solid #eef2f7;
+}
+
+.address-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.address-item__name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.address-item__phone,
+.address-item__detail {
+  display: block;
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 22rpx;
+  line-height: 1.5;
+}

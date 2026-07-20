@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimSchedulesMapper">
+
+    <resultMap type="com.ruoyi.domain.DimSchedules" id="DimSchedulesResult">
+        <result property="departSeq" column="depart_seq"/>
+        <result property="planDepartTime" column="plan_depart_time"/>
+        <result property="cancelFlag" column="cancel_flag"/>
+        <result property="isCircular" column="is_circular"/>
+        <result property="direction" column="direction"/>
+        <result property="lineName" column="line_name"/>
+        <result property="tripType" column="trip_type"/>
+        <result property="planArriveTime" column="plan_arrive_time"/>
+        <result property="scheduleNum" column="schedule_num"/>
+        <result property="startStopName" column="start_stop_name"/>
+        <result property="endStopName" column="end_stop_name"/>
+    </resultMap>
+
+    <sql id="selectDimSchedulesVo">
+        select depart_seq, plan_depart_time, cancel_flag, is_circular, direction, 
+               line_name, trip_type, plan_arrive_time, schedule_num, start_stop_name, end_stop_name
+        from dim_schedules
+    </sql>
+
+    <select id="selectDimSchedulesList" parameterType="com.ruoyi.domain.DimSchedules" resultMap="DimSchedulesResult">
+        <include refid="selectDimSchedulesVo"/>
+        <where>
+            <if test="lineName != null and lineName != ''">
+                AND line_name = #{lineName}
+            </if>
+            <if test="cancelFlag != null">
+                AND cancel_flag = #{cancelFlag}
+            </if>
+            <if test="direction != null and direction != ''">
+                AND direction = #{direction}
+            </if>
+            <if test="tripType != null and tripType != ''">
+                AND trip_type = #{tripType}
+            </if>
+        </where>
+        order by plan_depart_time
+    </select>
+
+    <select id="getAllSchedulesBasicInfo" resultType="Map">
+        SELECT schedule_num as scheduleNum,
+               line_name as lineName,
+               start_stop_name as startStopName,
+               end_stop_name as endStopName,
+               plan_depart_time as planDepartTime,
+               plan_arrive_time as planArriveTime,
+               cancel_flag as cancelFlag,
+               direction
+        FROM dim_schedules
+        ORDER BY line_name, plan_depart_time
+    </select>
+
+    <select id="countSchedulesByLine" resultType="Map">
+        SELECT line_name as lineName,
+               COUNT(*) as totalSchedules,
+               SUM(CASE WHEN cancel_flag = 0 THEN 1 ELSE 0 END) as validSchedules,
+               SUM(CASE WHEN cancel_flag = 1 THEN 1 ELSE 0 END) as canceledSchedules,
+               CAST(SUM(CASE WHEN cancel_flag = 1 THEN 1 ELSE 0 END) AS DECIMAL(10,2)) / COUNT(*) * 100 as cancelRate
+        FROM dim_schedules
+        WHERE DATE(plan_depart_time) = #{date}
+        <if test="lineName != null and lineName != ''">
+            AND line_name = #{lineName}
+        </if>
+        GROUP BY line_name
+        ORDER BY totalSchedules DESC
+    </select>
+
+    <select id="getScheduleCancelRate" resultType="Map">
+        SELECT DATE(plan_depart_time) as date,
+               COUNT(*) as totalSchedules,
+               SUM(CASE WHEN cancel_flag = 1 THEN 1 ELSE 0 END) as canceledSchedules,
+               CAST(SUM(CASE WHEN cancel_flag = 1 THEN 1 ELSE 0 END) AS DECIMAL(10,2)) / COUNT(*) * 100 as cancelRate
+        FROM dim_schedules
+        WHERE DATE(plan_depart_time) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY DATE(plan_depart_time)
+        ORDER BY date ASC
+    </select>
+
+    <select id="getScheduleMatchAnalysis" resultType="Map">
+        SELECT t.hour,
+               COALESCE(f.flow, 0) as hourlyFlow,
+               COALESCE(s.scheduleCount, 0) as scheduleCount,
+               COALESCE(f.flow, 0) / NULLIF(COALESCE(s.scheduleCount, 0), 0) as matchRatio
+        FROM (
+            SELECT HOUR(plan_depart_time) as hour
+            FROM dim_schedules
+            WHERE DATE(plan_depart_time) = #{date}
+            AND line_name = #{lineName}
+            AND cancel_flag = 0
+            UNION
+            SELECT stat_hour as hour
+            FROM fact_station_flow
+            WHERE DATE(stat_time) = #{date}
+            AND line_name = #{lineName}
+        ) t
+        LEFT JOIN (
+            SELECT HOUR(plan_depart_time) as hour,
+                   COUNT(*) as scheduleCount
+            FROM dim_schedules
+            WHERE DATE(plan_depart_time) = #{date}
+            AND line_name = #{lineName}
+            AND cancel_flag = 0
+            GROUP BY HOUR(plan_depart_time)
+        ) s ON t.hour = s.hour
+        LEFT JOIN (
+            SELECT stat_hour as hour,
+                   SUM(boarding_count + alighting_count) as flow
+            FROM fact_station_flow
+            WHERE DATE(stat_time) = #{date}
+            AND line_name = #{lineName}
+            GROUP BY stat_hour
+        ) f ON t.hour = f.hour
+        ORDER BY t.hour
+    </select>
+
+    <select id="getCapacityShortageWarning" resultType="Map">
+        SELECT f.line_name as lineName,
+               AVG(f.load_factor) as avgLoadFactor,
+               COUNT(DISTINCT s.schedule_num) as currentSchedules,
+               MAX(f.boarding_count + f.alighting_count) as maxHourlyFlow,
+               CASE 
+                   WHEN AVG(f.load_factor) > 0.9 AND COUNT(DISTINCT s.schedule_num) &lt; 20 THEN '严重缺口'
+                   WHEN AVG(f.load_factor) > 0.8 AND COUNT(DISTINCT s.schedule_num) &lt; 25 THEN '中度缺口'
+                   ELSE '正常'
+               END as warningLevel
+        FROM fact_station_flow f
+        LEFT JOIN dim_schedules s ON f.line_name = s.line_name 
+            AND DATE(f.stat_time) = #{date}
+            AND s.cancel_flag = 0
+        WHERE DATE(f.stat_time) = #{date}
+        GROUP BY f.line_name
+        HAVING AVG(f.load_factor) > 0.8
+        ORDER BY avgLoadFactor DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.DimStopsMapper">
+
+    <resultMap type="com.ruoyi.domain.DimStops" id="DimStopsResult">
+        <result property="stopName" column="stop_name"/>
+        <result property="stopAddress" column="stop_address"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+        <result property="zoneCode" column="zone_code"/>
+        <result property="zoneType" column="zone_type"/>
+    </resultMap>
+
+    <sql id="selectDimStopsVo">
+        select stop_name, stop_address, longitude, latitude, zone_code, zone_type
+        from dim_stops
+    </sql>
+
+    <select id="selectDimStopsList" parameterType="com.ruoyi.domain.DimStops" resultMap="DimStopsResult">
+        <include refid="selectDimStopsVo"/>
+        <where>
+            <if test="stopName != null and stopName != ''">
+                AND stop_name like concat('%', #{stopName}, '%')
+            </if>
+            <if test="zoneType != null and zoneType != ''">
+                AND zone_type = #{zoneType}
+            </if>
+            <if test="zoneCode != null">
+                AND zone_code = #{zoneCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllStopsForMap" resultType="Map">
+        SELECT stop_name as stopName,
+               longitude,
+               latitude,
+               zone_type as zoneType,
+               stop_address as stopAddress
+        FROM dim_stops
+        WHERE longitude IS NOT NULL AND latitude IS NOT NULL
+        ORDER BY stop_name
+    </select>
+
+    <select id="countStopsByZoneType" resultType="Map">
+        SELECT zone_type as zoneType,
+               COUNT(*) as count
+        FROM dim_stops
+        GROUP BY zone_type
+        ORDER BY count DESC
+    </select>
+
+    <select id="getStopLocation" resultType="Map">
+        SELECT stop_name as stopName,
+               longitude,
+               latitude,
+               stop_address as stopAddress,
+               zone_type as zoneType
+        FROM dim_stops
+        WHERE stop_name = #{stopName}
+    </select>
+
+    <select id="getStopsByZoneType" parameterType="String" resultMap="DimStopsResult">
+        SELECT stop_name, stop_address, longitude, latitude, zone_code, zone_type
+        FROM dim_stops
+        WHERE zone_type = #{zoneType}
+        ORDER BY stop_name
+    </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+}
+
+.login-title {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 700;
+}
+
+.login-desc {
+  display: block;
+  margin-top: 12rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.form-field {
+  margin-top: 28rpx;
+}
+
+.form-field__label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #334155;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.form-field__input {
+  border: 1px solid #e2e8f0;
+}
+
+.login-card__btn {
+  margin-top: 32rpx;
+  border-radius: 18rpx;
+}

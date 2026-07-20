@@ -1,0 +1,36 @@
+<view class="page detail-page">
+  <view class="card detail-hero" style="background: {{product.bg}};">
+    <text class="detail-hero__tag">{{product.tag}}</text>
+    <text class="detail-hero__title">{{product.title}}</text>
+    <text class="detail-hero__desc">{{product.desc}}</text>
+  </view>
+  <view class="card">
+    <view class="detail-price-row">
+      <text class="price">¥{{product.price}}</text>
+      <text class="detail-price-row__origin">原价 ¥{{product.originPrice}}</text>
+    </view>
+    <text class="detail-sales">销量 {{product.sales}}</text>
+    <view class="chip-row"><text class="chip" wx:for="{{product.highlights}}" wx:key="*this">{{item}}</text></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">服务保障</text><text class="section-title__sub">安心下单</text></view>
+    <view class="spec-list"><text class="spec-item" wx:for="{{specs}}" wx:key="*this">{{item}}</text></view>
+  </view>
+  <view class="card">
+    <view class="section-title"><text class="section-title__main">相关推荐</text><text class="section-title__sub">同类好物</text></view>
+    <view class="grid-2">
+      <view class="product-card" wx:for="{{relatedProducts}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+        <view class="product-card__cover" style="background: {{item.bg}};"><text class="product-card__tag">{{item.tag}}</text></view>
+        <view class="product-card__body">
+          <text class="product-card__title">{{item.title}}</text><text class="product-card__desc">{{item.desc}}</text>
+          <view class="product-card__foot"><text class="price">¥{{item.price}}</text><text class="product-card__meta">已售 {{item.sales}}</text></view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="detail-bar">
+    <button class="btn-secondary detail-bar__btn" bindtap="goCart">购物车</button>
+    <button class="btn-primary detail-bar__btn detail-bar__btn--main" bindtap="addCart">加入购物车</button>
+    <button class="btn-primary detail-bar__btn detail-bar__btn--main" bindtap="buyNow">立即购买</button>
+  </view>
+</view>

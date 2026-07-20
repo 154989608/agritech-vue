@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mapper.FactStationFlowMapper">
+
+    <resultMap type="com.ruoyi.domain.FactStationFlow" id="FactStationFlowResult">
+        <result property="statTime" column="stat_time"/>
+        <result property="stopName" column="stop_name"/>
+        <result property="lineName" column="line_name"/>
+        <result property="zoneType" column="zone_type"/>
+        <result property="timePeriod" column="time_period"/>
+        <result property="boardingCount" column="boarding_count"/>
+        <result property="alightingCount" column="alighting_count"/>
+        <result property="netFlow" column="net_flow"/>
+        <result property="loadFactor" column="load_factor"/>
+        <result property="yoyRate" column="yoy_rate"/>
+        <result property="statYear" column="stat_year"/>
+        <result property="statMonth" column="stat_month"/>
+        <result property="statDay" column="stat_day"/>
+        <result property="statHour" column="stat_hour"/>
+    </resultMap>
+
+    <sql id="selectFactStationFlowVo">
+        select stat_time, stop_name, line_name, zone_type, time_period, boarding_count, 
+               alighting_count, net_flow, load_factor, yoy_rate, stat_year, stat_month, stat_day, stat_hour
+        from fact_station_flow
+    </sql>
+
+    <select id="selectFactStationFlowList" parameterType="com.ruoyi.domain.FactStationFlow" resultMap="FactStationFlowResult">
+        <include refid="selectFactStationFlowVo"/>
+        <where>
+            <if test="stopName != null and stopName != ''">
+                AND stop_name like concat('%', #{stopName}, '%')
+            </if>
+            <if test="lineName != null and lineName != ''">
+                AND line_name = #{lineName}
+            </if>
+            <if test="zoneType != null and zoneType != ''">
+                AND zone_type = #{zoneType}
+            </if>
+            <if test="timePeriod != null and timePeriod != ''">
+                AND time_period = #{timePeriod}
+            </if>
+            <if test="statYear != null">
+                AND stat_year = #{statYear}
+            </if>
+            <if test="statMonth != null">
+                AND stat_month = #{statMonth}
+            </if>
+        </where>
+        order by stat_time desc
+    </select>
+
+    <select id="getTotalFlow" resultType="Long">
+        SELECT COALESCE(SUM(boarding_count + alighting_count), 0) as totalFlow
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+    </select>
+
+    <select id="getFlowByLine" resultType="Map">
+        SELECT line_name as lineName, 
+               SUM(boarding_count + alighting_count) as totalFlow,
+               AVG(load_factor) as avgLoadFactor,
+               COUNT(DISTINCT stop_name) as stationCount
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY line_name
+        ORDER BY totalFlow DESC
+    </select>
+
+    <select id="getFlowByStation" resultType="Map">
+        SELECT stop_name as stopName,
+               line_name as lineName,
+               SUM(boarding_count + alighting_count) as totalFlow,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY stop_name, line_name
+        ORDER BY totalFlow DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <select id="getFlowByZone" resultType="Map">
+        SELECT zone_type as zoneType,
+               SUM(boarding_count + alighting_count) as totalFlow,
+               COUNT(DISTINCT stop_name) as stationCount,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY zone_type
+        ORDER BY totalFlow DESC
+    </select>
+
+    <select id="getFlowByTimePeriod" resultType="Map">
+        SELECT time_period as timePeriod,
+               SUM(boarding_count + alighting_count) as totalFlow,
+               AVG(load_factor) as avgLoadFactor,
+               COUNT(*) as recordCount
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY time_period
+        ORDER BY 
+            CASE time_period
+                WHEN '早高峰' THEN 1
+                WHEN '晚高峰' THEN 2
+                WHEN '平峰' THEN 3
+                WHEN '低峰' THEN 4
+                ELSE 5
+            END
+    </select>
+
+    <select id="getFlowTrend" resultType="Map">
+        SELECT DATE(stat_time) as date,
+               SUM(boarding_count + alighting_count) as dailyFlow,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE stat_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+        GROUP BY DATE(stat_time)
+        ORDER BY date ASC
+    </select>
+
+    <select id="getTopLines" resultType="Map">
+        SELECT line_name as lineName,
+               SUM(boarding_count + alighting_count) as totalFlow,
+               AVG(load_factor) as avgLoadFactor,
+               COUNT(DISTINCT stop_name) as stationCount
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY line_name
+        ORDER BY totalFlow DESC
+        LIMIT 10
+    </select>
+
+    <select id="getTopStations" resultType="Map">
+        SELECT stop_name as stopName,
+               line_name as lineName,
+               SUM(boarding_count + alighting_count) as totalFlow,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY stop_name, line_name
+        ORDER BY totalFlow DESC
+        LIMIT 10
+    </select>
+
+    <select id="getAverageLoadFactor" resultType="Double">
+        SELECT AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+    </select>
+
+    <select id="getYoyRate" resultType="Double">
+        SELECT AVG(yoy_rate) as yoyRate
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+    </select>
+
+    <select id="getRealTimeFlow" resultType="Map">
+        SELECT DATE_FORMAT(stat_time, '%Y-%m-%d %H:00:00') as hour,
+               SUM(boarding_count + alighting_count) as hourlyFlow,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE stat_time >= DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+        GROUP BY DATE_FORMAT(stat_time, '%Y-%m-%d %H:00:00')
+        ORDER BY hour ASC
+    </select>
+
+    <select id="getPeakHours" resultType="Map">
+        SELECT stat_hour as hour,
+               SUM(boarding_count + alighting_count) as hourlyFlow,
+               AVG(load_factor) as avgLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY stat_hour
+        ORDER BY hourlyFlow DESC
+        LIMIT 5
+    </select>
+
+    <select id="getLoadFactorRanking" resultType="Map">
+        SELECT line_name as lineName,
+               AVG(load_factor) as avgLoadFactor,
+               MIN(load_factor) as minLoadFactor,
+               MAX(load_factor) as maxLoadFactor
+        FROM fact_station_flow
+        WHERE 1=1
+        <if test="year != null">
+            AND stat_year = #{year}
+        </if>
+        <if test="month != null">
+            AND stat_month = #{month}
+        </if>
+        GROUP BY line_name
+        ORDER BY avgLoadFactor DESC
+    </select>
+
+</mapper>

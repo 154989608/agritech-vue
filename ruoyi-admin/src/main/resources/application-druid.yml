@@ -1,61 +1,77 @@
 # 数据源配置
 spring:
-    datasource:
-        type: com.alibaba.druid.pool.DruidDataSource
-        driverClassName: com.mysql.cj.jdbc.Driver
-        druid:
-            # 主库数据源
-            master:
-                url: jdbc:mysql://111.229.198.78:3306/ry_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-                username: root
-                password: zst745820.
-            # 从库数据源
-            slave:
-                # 从数据源开关/默认关闭
-                enabled: false
-                url:
-                username:
-                password:
-            # 初始连接数
-            initialSize: 5
-            # 最小连接池数量
-            minIdle: 10
-            # 最大连接池数量
-            maxActive: 20
-            # 配置获取连接等待超时的时间
-            maxWait: 60000
-            # 配置连接超时时间
-            connectTimeout: 30000
-            # 配置网络超时时间
-            socketTimeout: 60000
-            # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-            timeBetweenEvictionRunsMillis: 60000
-            # 配置一个连接在池中最小生存的时间，单位是毫秒
-            minEvictableIdleTimeMillis: 300000
-            # 配置一个连接在池中最大生存的时间，单位是毫秒
-            maxEvictableIdleTimeMillis: 900000
-            # 配置检测连接是否有效
-            validationQuery: SELECT 1 FROM DUAL
-            testWhileIdle: true
-            testOnBorrow: false
-            testOnReturn: false
-            webStatFilter:
-                enabled: true
-            statViewServlet:
-                enabled: true
-                # 设置白名单，不填则允许所有访问
-                allow:
-                url-pattern: /druid/*
-                # 控制台管理用户名和密码
-                login-username: ruoyi
-                login-password: 123456
-            filter:
-                stat:
-                    enabled: true
-                    # 慢SQL记录
-                    log-slow-sql: true
-                    slow-sql-millis: 1000
-                    merge-sql: true
-                wall:
-                    config:
-                        multi-statement-allow: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 默认驱动 (用于 Master/MySQL)
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # ================= 主库 (MySQL) =================
+      # 用于：用户、菜单、角色、字典等系统业务数据
+      master:
+        url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ry_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
+        username: ${MYSQL_USERNAME:root}
+        password: ${MYSQL_PASSWORD:123456}
+        driver-class-name: ${MYSQL_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+
+      # ================= 从库结构（当前停用） =================
+      # 保留从库配置结构，当前不创建从库数据源；需要时补齐连接信息并启用。
+      slave:
+        enabled: ${SLAVE_DATASOURCE_ENABLED:false}
+        url: ${SLAVE_DATASOURCE_URL:}
+        username: ${SLAVE_DATASOURCE_USERNAME:}
+        password: ${SLAVE_DATASOURCE_PASSWORD:}
+        driver-class-name: ${SLAVE_DATASOURCE_DRIVER_CLASS_NAME:}
+        validationQuery: SELECT 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+
+      # ================= 全局连接池配置 =================
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置连接超时时间
+      connectTimeout: 30000
+      # 配置网络超时时间
+      socketTimeout: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+
+      # 全局验证查询 (默认给 MySQL 用，Slave 节点已单独覆盖)
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+
+      # Web 监控配置
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: ruoyi
+        login-password: 123456
+      # 过滤器配置
+      filter:
+        stat:
+          enabled: true
+          # 慢 SQL 记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            # 允许执行多条语句 (某些报表可能需要)
+            multi-statement-allow: true
