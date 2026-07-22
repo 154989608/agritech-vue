@@ -10,7 +10,7 @@ spring:
       master:
         url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ry_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
         username: ${MYSQL_USERNAME:root}
-        password: ${MYSQL_PASSWORD:123456}
+        password: ${MYSQL_PASSWORD:654zwhs321}
         driver-class-name: ${MYSQL_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
 
       # ================= 从库结构（当前停用） =================
