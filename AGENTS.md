@@ -24,7 +24,7 @@ Rules:
 - No new dependency if it can be avoided.
 - No boilerplate nobody asked for.
 - Deletion over addition. Boring over clever. Fewest files possible.
-- Every database change must add a corresponding SQL statement file under `sql/update/`, named `xxxx-xx-xx-描述.sql` (for example, `2026-07-22-新增商品库存字段.sql`).
+- Before executing any database DDL or DML, first create the complete SQL script under `sql/update/`, named `xxxx-xx-xx-描述.sql` (for example, `2026-07-22-新增商品库存字段.sql`), and review that file. Every database change must be represented there; do not execute unfiled inline SQL against a database.
 - Shortest working diff wins, but only once you understand the problem. The smallest change in the wrong place isn't lazy, it's a second bug.
 - Question complex requests: "Do you actually need X, or does Y cover it?"
 - Pick the edge-case-correct option when two stdlib approaches are the same size, lazy means less code, not the flimsier algorithm.
