@@ -42,3 +42,21 @@ test('mini program obtains its member token only from wx.login', async () => {
   assert.doesNotMatch(page, /demo-token/)
   assert.doesNotMatch(page, /password/)
 })
+
+test('profile keeps only implemented member services and uses native customer contact', async () => {
+  const [controller, api, page, template] = await Promise.all([
+    source('ruoyi-admin/src/main/java/com/ruoyi/web/controller/app/AppMemberProfileController.java'),
+    source('RuoYi-wx-app/api/shop.js'),
+    source('RuoYi-wx-app/pages/profile/index.js'),
+    source('RuoYi-wx-app/pages/profile/index.wxml')
+  ])
+
+  assert.match(controller, /@GetMapping\("\/me"\)/)
+  assert.match(controller, /AppMemberContext\.getMemberId\(\)/)
+  assert.match(api, /getMemberProfile/)
+  assert.match(page, /getMemberProfile/)
+  assert.doesNotMatch(template, /我的钱包|钱包余额/)
+  assert.match(template, /open-type="contact"/)
+  assert.doesNotMatch(page, /openCustomerServiceChat/)
+  assert.doesNotMatch(page, /银行卡|分销|售后/)
+})

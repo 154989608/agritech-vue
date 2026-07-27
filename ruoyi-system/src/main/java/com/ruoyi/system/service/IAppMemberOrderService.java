@@ -1,0 +1,3 @@
+package com.ruoyi.system.service;
+import java.util.List; import com.ruoyi.system.domain.shop.MallOrder; import com.ruoyi.system.domain.shop.app.AppMemberOrderDto; import com.ruoyi.system.domain.shop.app.AppMemberOrderPreviewDto; import com.ruoyi.system.domain.shop.app.AppMemberOrderRequest;
+public interface IAppMemberOrderService { AppMemberOrderPreviewDto preview(Long memberId,AppMemberOrderRequest request); AppMemberOrderDto createOrder(Long memberId,AppMemberOrderRequest request); List<MallOrder> list(Long memberId,String status); List<AppMemberOrderDto> toDtos(List<MallOrder> orders); AppMemberOrderDto detail(Long memberId,String orderNo); int cancel(Long memberId,String orderNo,String reason); int confirmReceipt(Long memberId,String orderNo); }

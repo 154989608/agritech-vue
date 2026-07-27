@@ -49,49 +49,6 @@
   font-size: 24rpx;
 }
 
-.profile-wallet {
-  background: linear-gradient(135deg, #2f5d35 0%, #3b6f3d 100%);
-  color: #ffffff;
-}
-
-.profile-wallet__title {
-  display: block;
-  font-size: 38rpx;
-  font-weight: 700;
-}
-
-.profile-wallet__desc {
-  display: block;
-  margin-top: 8rpx;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 24rpx;
-}
-
-.profile-wallet__enter {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 24rpx;
-}
-
-.profile-wallet__balance {
-  margin-top: 28rpx;
-  padding: 24rpx;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.profile-wallet__label {
-  display: block;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 24rpx;
-}
-
-.profile-wallet__value {
-  display: block;
-  margin-top: 10rpx;
-  font-size: 52rpx;
-  font-weight: 700;
-}
-
 .profile-order-grid {
   display: flex;
   justify-content: space-between;
@@ -149,6 +106,17 @@
   display: block;
   font-size: 22rpx;
   color: #374151;
+}
+
+.profile-contact {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  line-height: normal;
+}
+
+.profile-contact__icon {
+  background: #d1fae5;
 }
 
 .profile-logout {

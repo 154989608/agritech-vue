@@ -1,0 +1,13 @@
+.order-status, .item, .amount-row { display: flex; align-items: center; justify-content: space-between; }
+.address-name, .address-detail { display: block; margin-top: 12rpx; }
+.address-name { font-weight: 700; }
+.address-detail, .item__body .muted { color: #64748b; font-size: 24rpx; }
+.item { padding: 16rpx 0; }
+.item + .item { border-top: 1px solid #eef2f7; }
+.item__cover { width: 96rpx; height: 96rpx; border-radius: 16rpx; flex: none; }
+.item__body { flex: 1; margin: 0 16rpx; }
+.item__body text { display: block; }
+.amount-row { margin-top: 16rpx; color: #475569; font-size: 24rpx; }
+.amount-row--total { font-size: 28rpx; font-weight: 700; }
+.action-bar { display: flex; justify-content: flex-end; gap: 16rpx; }
+.action-bar__button { margin: 0; border-radius: 16rpx; font-size: 26rpx; }

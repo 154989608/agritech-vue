@@ -63,6 +63,36 @@
   font-weight: 700;
 }
 
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  color: #475569;
+  font-size: 24rpx;
+}
+
+.coupon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.coupon-option {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 18rpx;
+  border: 1px solid #e2e8f0;
+  border-radius: 12rpx;
+  color: #475569;
+  font-size: 24rpx;
+}
+
+.coupon-option.is-selected {
+  border-color: #ea580c;
+  color: #c2410c;
+}
+
 .pay-option {
   padding: 20rpx;
   border-radius: 20rpx;

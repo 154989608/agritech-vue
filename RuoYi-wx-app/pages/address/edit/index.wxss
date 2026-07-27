@@ -1,0 +1,6 @@
+.form-row { display: flex; align-items: center; min-height: 96rpx; border-bottom: 1px solid #eef2f7; }
+.form-row:last-child { border-bottom: 0; }
+.form-row__label { width: 150rpx; color: #475569; }
+.form-row__input, .form-row__value { flex: 1; min-width: 0; font-size: 28rpx; }
+.form-row__value { color: #64748b; text-align: right; }
+.save-button { margin-top: 24rpx; border-radius: 16rpx; }

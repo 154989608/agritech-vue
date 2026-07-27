@@ -8,7 +8,10 @@
     "pages/product/detail/index",
     "pages/order/list/index",
     "pages/order/confirm/index",
+    "pages/order/detail/index",
     "pages/address/list/index",
+    "pages/address/edit/index",
+    "pages/coupon/list/index",
     "pages/login/index"
   ],
   "window": {

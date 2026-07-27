@@ -1,4 +1,5 @@
 const app = getApp()
+const { getMemberProfile } = require('../../api/shop')
 
 const orderItems = [
   { title: '待支付', short: '付' },
@@ -9,14 +10,7 @@ const orderItems = [
 
 const serviceItems = [
   { title: '收货地址', short: '址', action: 'address', color: '#dcfce7' },
-  { title: '我的优惠券', short: '券', action: 'coupon', color: '#ffe4e6' },
-  { title: '分销中心', short: '分', action: 'center', color: '#fef3c7' },
-  { title: '我的银行卡', short: '卡', action: 'bank', color: '#fef3c7' },
-  { title: '售后记录', short: '售', action: 'after', color: '#dbeafe' },
-  { title: '平台介绍', short: '介', action: 'about', color: '#e9d5ff' },
-  { title: '消息通知', short: '讯', action: 'notice', color: '#fee2e2' },
-  { title: '商家聊天', short: '聊', action: 'chat', color: '#dcfce7' },
-  { title: '联系客服', short: '服', action: 'service', color: '#d1fae5' }
+  { title: '我的优惠券', short: '券', action: 'coupon', color: '#ffe4e6' }
 ]
 
 function buildUser() {
@@ -39,9 +33,12 @@ function buildUser() {
 }
 
 Page({
-  data: { userInfo: buildUser(), orderItems, serviceItems },
+  data: { userInfo: buildUser(), orderItems, serviceItems, availableCouponCount: 0 },
   onShow() {
-    this.setData({ userInfo: buildUser() })
+    const userInfo = buildUser()
+    this.setData({ userInfo })
+    if (!userInfo.loggedIn) return
+    getMemberProfile().then((profile) => this.setData({ userInfo: { ...userInfo, nickname: profile.nickname || userInfo.nickname }, orderItems: orderItems.map((item, index) => ({ ...item, count: [profile.pendingPaymentCount, profile.pendingShipmentCount, profile.shippedCount, profile.completedCount][index] || 0 })), availableCouponCount: profile.availableCouponCount || 0 })).catch((error) => { if (error.code === 401) this.setData({ userInfo: buildUser() }) })
   },
   goLogin() {
     wx.navigateTo({ url: '/pages/login/index' })
@@ -55,7 +52,7 @@ Page({
       wx.navigateTo({ url: '/pages/address/list/index' })
       return
     }
-
+    if (action === 'coupon') { wx.navigateTo({ url: '/pages/coupon/list/index' }); return }
     if (action === 'logout') {
       wx.removeStorageSync('token')
       wx.removeStorageSync('userInfo')
@@ -68,16 +65,6 @@ Page({
       return
     }
 
-    const tips = {
-      coupon: '优惠券功能待接入',
-      center: '分销中心待接入',
-      bank: '银行卡功能待接入',
-      after: '售后记录待接入',
-      about: '平台介绍待接入',
-      notice: '消息通知待接入',
-      chat: '商家聊天待接入',
-      service: '联系客服待接入'
-    }
-    wx.showToast({ title: tips[action] || '功能待接入', icon: 'none' })
+    wx.showToast({ title: '当前操作不可用', icon: 'none' })
   }
 })

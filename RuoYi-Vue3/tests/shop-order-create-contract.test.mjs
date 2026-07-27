@@ -27,6 +27,7 @@ test('order creation and payment lifecycle are service-owned transactions', asyn
   assert.match(controller, /@PreAuthorize\("@ss\.hasPermi\('shop:order:pay'\)"\).*\/pay-success/s)
   assert.match(service, /@Transactional\(rollbackFor=Exception\.class\).*createOrder/s)
   assert.match(service, /@Transactional\(rollbackFor=Exception\.class\).*paySuccess/s)
+  assert.match(service, /getPayableAmount\(\)==0L.*paySuccess/s)
   assert.match(mapper, /lockSkuStock/)
   assert.match(mapper, /deductLockedStock/)
   assert.match(xml, /id="insertOrder"/)

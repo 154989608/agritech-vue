@@ -25,3 +25,10 @@
   font-size: 22rpx;
   line-height: 1.5;
 }
+
+.address-item__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24rpx;
+  margin-top: 16rpx;
+}

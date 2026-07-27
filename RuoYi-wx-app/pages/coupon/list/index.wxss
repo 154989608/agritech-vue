@@ -1,0 +1,4 @@
+.coupon { display:flex; align-items:center; gap:18rpx; }.coupon__amount { display:block; color:#ea580c; font-size:40rpx; font-weight:700; }.coupon__threshold,.coupon__date { display:block; margin-top:8rpx; color:#64748b; font-size:22rpx; }.coupon__body { flex:1; }.coupon__name { display:block; font-size:28rpx; font-weight:700; }.coupon__button { width:120rpx; margin:0; font-size:24rpx; }
+.coupon-tabs { display: flex; gap: 32rpx; }
+.coupon-tab { color: #64748b; }
+.coupon-tab.is-active { color: #e23d28; font-weight: 700; }
