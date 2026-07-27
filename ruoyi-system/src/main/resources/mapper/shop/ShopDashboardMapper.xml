@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.shop.ShopDashboardMapper">
+
+    <select id="selectSummary" resultType="com.ruoyi.system.domain.shop.ShopDashboard">
+        SELECT
+            COALESCE(SUM(CASE WHEN pay_time &gt;= #{dayStart} AND pay_time &lt; #{dayEnd} THEN 1 ELSE 0 END), 0) AS todayPaidOrderCount,
+            COALESCE(SUM(CASE WHEN pay_time &gt;= #{dayStart} AND pay_time &lt; #{dayEnd} THEN paid_amount ELSE 0 END), 0) AS todayPaidAmount,
+            COALESCE(SUM(CASE WHEN order_status = 'PENDING_SHIPMENT' THEN 1 ELSE 0 END), 0) AS pendingShipmentCount,
+            (SELECT COUNT(1) FROM mall_member WHERE create_time &gt;= #{dayStart} AND create_time &lt; #{dayEnd}) AS todayNewMemberCount,
+            COALESCE(SUM(CASE WHEN order_status = 'PENDING_PAYMENT' THEN 1 ELSE 0 END), 0) AS pendingPaymentCount,
+            (SELECT COUNT(1) FROM mall_product_sku WHERE del_flag = '0' AND status = '0' AND available_stock &lt;= warning_stock) AS lowStockSkuCount
+        FROM mall_order
+        WHERE order_status IN ('PENDING_SHIPMENT', 'SHIPPED', 'COMPLETED', 'PENDING_PAYMENT')
+    </select>
+
+    <select id="selectSalesTrend" resultType="com.ruoyi.system.domain.shop.ShopDashboard$Trend">
+        SELECT DATE_FORMAT(pay_time, '%Y-%m-%d') AS day,
+               COALESCE(SUM(paid_amount), 0) AS paidAmount,
+               COUNT(1) AS paidOrderCount
+        FROM mall_order
+        WHERE pay_time &gt;= #{start} AND pay_time &lt; #{end}
+          AND order_status IN ('PENDING_SHIPMENT', 'SHIPPED', 'COMPLETED')
+        GROUP BY DATE_FORMAT(pay_time, '%Y-%m-%d')
+        ORDER BY day ASC
+    </select>
+
+    <select id="selectHotSkus" resultType="com.ruoyi.system.domain.shop.ShopDashboard$HotSku">
+        SELECT i.sku_id AS skuId,
+               MAX(i.product_name_snapshot) AS productName,
+               MAX(i.sku_name_snapshot) AS skuName,
+               COALESCE(SUM(i.quantity), 0) AS salesQuantity,
+               COALESCE(SUM(i.payable_amount), 0) AS paidAmount
+        FROM mall_order_item i
+        INNER JOIN mall_order o ON o.order_id = i.order_id
+        WHERE o.pay_time &gt;= #{start} AND o.pay_time &lt; #{end}
+          AND o.order_status IN ('PENDING_SHIPMENT', 'SHIPPED', 'COMPLETED')
+        GROUP BY i.sku_id
+        ORDER BY salesQuantity DESC, paidAmount DESC
+        LIMIT 10
+    </select>
+</mapper>

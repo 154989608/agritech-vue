@@ -1,0 +1,3 @@
+package com.ruoyi.system.domain.shop;
+import com.ruoyi.common.core.domain.BaseEntity;
+public class MallMember extends BaseEntity { private Long memberId; private String nickname; private String avatarUrl; private String phone; private String status; public Long getMemberId(){return memberId;} public void setMemberId(Long v){memberId=v;} public String getNickname(){return nickname;} public void setNickname(String v){nickname=v;} public String getAvatarUrl(){return avatarUrl;} public void setAvatarUrl(String v){avatarUrl=v;} public String getPhone(){return phone;} public void setPhone(String v){phone=v;} public String getStatus(){return status;} public void setStatus(String v){status=v;} }

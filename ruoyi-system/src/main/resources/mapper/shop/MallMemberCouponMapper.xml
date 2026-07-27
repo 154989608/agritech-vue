@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.shop.MallMemberCouponMapper">
+  <resultMap id="MemberCouponResult" type="com.ruoyi.system.domain.shop.MallMemberCoupon">
+    <id property="memberCouponId" column="member_coupon_id"/>
+    <result property="couponNo" column="coupon_no"/><result property="couponId" column="coupon_id"/><result property="memberId" column="member_id"/>
+    <result property="couponNameSnapshot" column="coupon_name_snapshot"/><result property="thresholdAmountSnapshot" column="threshold_amount_snapshot"/><result property="discountAmountSnapshot" column="discount_amount_snapshot"/>
+    <result property="status" column="status"/><result property="validBeginTime" column="valid_begin_time"/><result property="validEndTime" column="valid_end_time"/>
+    <result property="lockedOrderId" column="locked_order_id"/><result property="usedOrderId" column="used_order_id"/><result property="receiveTime" column="receive_time"/><result property="useTime" column="use_time"/><result property="version" column="version"/>
+  </resultMap>
+  <resultMap id="CouponResult" type="com.ruoyi.system.domain.shop.MallCoupon">
+    <id property="couponId" column="coupon_id"/><result property="couponName" column="coupon_name"/><result property="thresholdAmount" column="threshold_amount"/><result property="discountAmount" column="discount_amount"/><result property="limitPerMember" column="limit_per_member"/>
+    <result property="receiveBeginTime" column="receive_begin_time"/><result property="receiveEndTime" column="receive_end_time"/><result property="validDays" column="valid_days"/><result property="validBeginTime" column="valid_begin_time"/><result property="validEndTime" column="valid_end_time"/><result property="status" column="status"/>
+  </resultMap>
+  <sql id="memberCouponColumns">member_coupon_id,coupon_no,coupon_id,member_id,coupon_name_snapshot,threshold_amount_snapshot,discount_amount_snapshot,status,valid_begin_time,valid_end_time,locked_order_id,used_order_id,receive_time,use_time,version</sql>
+  <select id="selectCouponForReceive" resultMap="CouponResult">SELECT coupon_id,coupon_name,threshold_amount,discount_amount,limit_per_member,receive_begin_time,receive_end_time,valid_days,valid_begin_time,valid_end_time,status FROM mall_coupon WHERE coupon_id=#{couponId} AND del_flag='0' FOR UPDATE</select>
+  <select id="countByCouponAndMember" resultType="int">SELECT COUNT(1) FROM mall_member_coupon WHERE coupon_id=#{couponId} AND member_id=#{memberId}</select>
+  <update id="increaseReceived">UPDATE mall_coupon SET received_quantity=received_quantity+1,version=version+1 WHERE coupon_id=#{couponId} AND del_flag='0' AND status='0' AND received_quantity &lt; total_quantity</update>
+  <insert id="insertMemberCoupon" useGeneratedKeys="true" keyProperty="memberCouponId">INSERT INTO mall_member_coupon(coupon_no,coupon_id,member_id,coupon_name_snapshot,threshold_amount_snapshot,discount_amount_snapshot,status,valid_begin_time,valid_end_time) VALUES(#{couponNo},#{couponId},#{memberId},#{couponNameSnapshot},#{thresholdAmountSnapshot},#{discountAmountSnapshot},#{status},#{validBeginTime},#{validEndTime})</insert>
+  <select id="selectMemberCouponList" parameterType="com.ruoyi.system.domain.shop.MallMemberCoupon" resultMap="MemberCouponResult">SELECT <include refid="memberCouponColumns"/> FROM mall_member_coupon <where><if test="memberId!=null">AND member_id=#{memberId}</if><if test="status!=null and status!=''">AND status=#{status}</if></where> ORDER BY member_coupon_id DESC</select>
+  <select id="selectAvailableById" resultMap="MemberCouponResult">SELECT <include refid="memberCouponColumns"/> FROM mall_member_coupon WHERE member_coupon_id=#{memberCouponId} AND member_id=#{memberId} AND status='AVAILABLE' AND valid_begin_time &lt;= CURRENT_TIMESTAMP(3) AND valid_end_time &gt; CURRENT_TIMESTAMP(3)</select>
+  <update id="lockCoupon">UPDATE mall_member_coupon SET status='LOCKED',locked_order_id=#{orderId},version=version+1 WHERE member_coupon_id=#{memberCouponId} AND member_id=#{memberId} AND status='AVAILABLE' AND threshold_amount_snapshot &lt;= #{orderAmount} AND valid_begin_time &lt;= CURRENT_TIMESTAMP(3) AND valid_end_time &gt; CURRENT_TIMESTAMP(3)</update>
+  <update id="unlockCoupon">UPDATE mall_member_coupon SET status='AVAILABLE',locked_order_id=NULL,version=version+1 WHERE locked_order_id=#{orderId} AND status='LOCKED'</update>
+  <update id="useCoupon">UPDATE mall_member_coupon SET status='USED',used_order_id=#{orderId},locked_order_id=NULL,use_time=CURRENT_TIMESTAMP(3),version=version+1 WHERE locked_order_id=#{orderId} AND status='LOCKED'</update>
+  <update id="expireCoupons">UPDATE mall_member_coupon SET status='EXPIRED',version=version+1 WHERE status='AVAILABLE' AND valid_end_time &lt;= CURRENT_TIMESTAMP(3)</update>
+</mapper>

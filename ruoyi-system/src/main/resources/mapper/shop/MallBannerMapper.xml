@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.shop.MallBannerMapper">
+ <resultMap id="BannerResult" type="com.ruoyi.system.domain.shop.MallBanner"><id property="bannerId" column="banner_id"/><result property="title" column="title"/><result property="imageUrl" column="image_url"/><result property="jumpType" column="jump_type"/><result property="targetValue" column="target_value"/><result property="sortNum" column="sort_num"/><result property="status" column="status"/><result property="beginTime" column="begin_time"/><result property="endTime" column="end_time"/><result property="createTime" column="create_time"/></resultMap>
+ <select id="selectBannerList" resultMap="BannerResult">SELECT banner_id,title,image_url,jump_type,target_value,sort_num,status,begin_time,end_time,create_time FROM mall_banner WHERE del_flag='0' ORDER BY sort_num,banner_id</select>
+ <select id="selectBannerById" resultMap="BannerResult">SELECT banner_id,title,image_url,jump_type,target_value,sort_num,status,begin_time,end_time FROM mall_banner WHERE banner_id=#{id} AND del_flag='0'</select>
+ <insert id="insertBanner" useGeneratedKeys="true" keyProperty="bannerId">INSERT INTO mall_banner(title,image_url,jump_type,target_value,sort_num,status,begin_time,end_time,create_by,remark) VALUES(#{title},#{imageUrl},#{jumpType},#{targetValue},#{sortNum},#{status},#{beginTime},#{endTime},#{createBy},#{remark})</insert>
+ <update id="updateBanner">UPDATE mall_banner SET title=#{title},image_url=#{imageUrl},jump_type=#{jumpType},target_value=#{targetValue},sort_num=#{sortNum},status=#{status},begin_time=#{beginTime},end_time=#{endTime},update_by=#{updateBy},remark=#{remark} WHERE banner_id=#{bannerId} AND del_flag='0'</update>
+ <update id="updateBannerStatus">UPDATE mall_banner SET status=#{status},update_by=#{updateBy} WHERE banner_id=#{bannerId} AND del_flag='0'</update><update id="deleteBannerById">UPDATE mall_banner SET del_flag='2' WHERE banner_id=#{id} AND del_flag='0'</update>
+</mapper>

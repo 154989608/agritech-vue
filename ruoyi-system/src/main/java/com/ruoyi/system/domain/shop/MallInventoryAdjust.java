@@ -1,0 +1,2 @@
+package com.ruoyi.system.domain.shop;
+public class MallInventoryAdjust { private Long skuId; private Long quantity; private String bizType; private String reason; public Long getSkuId(){return skuId;} public void setSkuId(Long v){skuId=v;} public Long getQuantity(){return quantity;} public void setQuantity(Long v){quantity=v;} public String getBizType(){return bizType;} public void setBizType(String v){bizType=v;} public String getReason(){return reason;} public void setReason(String v){reason=v;} }
