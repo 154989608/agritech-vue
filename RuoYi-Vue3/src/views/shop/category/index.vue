@@ -7,6 +7,7 @@
     </el-form>
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5"><el-button type="primary" plain icon="Plus" v-hasPermi="['shop:category:add']" @click="handleAdd()">新增一级分类</el-button></el-col>
+      <el-col :span="1.5"><el-button type="warning" plain icon="Download" v-hasPermi="['shop:category:export']" @click="handleExport">导出</el-button></el-col>
       <el-col :span="1.5"><el-button plain icon="Sort" @click="toggleExpand">展开/折叠</el-button></el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
     </el-row>
@@ -51,6 +52,7 @@ function resetQuery() { proxy.resetForm('queryRef'); getList() }
 function handleAdd(parent) { reset(); if (parent) { form.value.level = 2; form.value.parentId = parent.categoryId }; title.value = parent ? '新增二级分类' : '新增一级分类'; open.value = true }
 function handleUpdate(row) { reset(); getCategory(row.categoryId).then(res => { form.value = res.data; title.value = '修改分类'; open.value = true }) }
 function handleDelete(row) { proxy.$modal.confirm(`是否确认删除分类“${row.categoryName}”？`).then(() => delCategory(row.categoryId)).then(() => { proxy.$modal.msgSuccess('删除成功'); getList() }).catch(() => {}) }
+function handleExport() { proxy.download('shop/category/export', { ...queryParams.value }, `category_${new Date().getTime()}.xlsx`) }
 function submitForm() { proxy.$refs.categoryRef.validate(valid => { if (!valid) return; submitting.value = true; const request = form.value.categoryId ? updateCategory(form.value) : addCategory(form.value); request.then(() => { proxy.$modal.msgSuccess(form.value.categoryId ? '修改成功' : '新增成功'); open.value = false; getList() }).finally(() => { submitting.value = false }) }) }
 function toggleExpand() { refreshTable.value = false; expandAll.value = !expandAll.value; nextTick(() => { refreshTable.value = true }) }
 getList()

@@ -1,3 +1,3 @@
 package com.ruoyi.system.mapper.shop;
-import java.util.List; import com.ruoyi.system.domain.shop.MallMember; import com.ruoyi.system.domain.shop.MallMemberAddress;
-public interface MallMemberMapper { List<MallMember> selectMemberList(MallMember member); MallMember selectMemberById(Long memberId); List<MallMemberAddress> selectAddressesByMemberId(Long memberId); int updateMemberStatus(MallMember member); }
+import java.util.List; import org.apache.ibatis.annotations.Param; import com.ruoyi.system.domain.shop.MallMember; import com.ruoyi.system.domain.shop.MallMemberAddress;
+public interface MallMemberMapper { List<MallMember> selectMemberList(MallMember member); MallMember selectMemberById(Long memberId); MallMember selectMemberByAppOpen(@Param("appId") String appId,@Param("openId") String openId); int insertAppMember(MallMember member); int updateMemberLogin(Long memberId); List<MallMemberAddress> selectAddressesByMemberId(Long memberId); int updateMemberStatus(MallMember member); }

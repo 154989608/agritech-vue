@@ -1,35 +1,25 @@
-const { addresses, cartItems } = require('../../../utils/mock')
-
-function calcSummary(items) {
-  const selectedItems = items.filter((item) => item.selected !== false)
-  const count = selectedItems.reduce((sum, item) => sum + item.count, 0)
-  const total = selectedItems.reduce((sum, item) => sum + item.price * item.count, 0)
-
-  return { count, total, selectedItems }
-}
+const { previewOrder } = require('../../../api/shop')
+const cart = require('../../../utils/cart')
+const money = (cent) => (Number(cent || 0) / 100).toFixed(2)
 
 Page({
   data: {
-    address: {},
-    items: [],
-    summary: {
-      count: 0,
-      total: 0
-    }
+    address: {}, items: [], preview: null, loading: false
   },
   onLoad() {
-    const address = addresses.find((item) => item.isDefault) || addresses[0]
-    const items = JSON.parse(JSON.stringify(cartItems))
-    const summary = calcSummary(items)
-
-    this.setData({
-      address,
-      items: summary.selectedItems,
-      summary
-    })
+    const items = wx.getStorageSync('mall-checkout-items') || cart.getSelected()
+    if (!items.length) return wx.navigateBack()
+    this.setData({ items })
+    this.loadPreview()
+  },
+  loadPreview() {
+    this.setData({ loading: true })
+    return previewOrder({ items: this.data.items }).then((preview) => this.setData({ preview: { ...preview, payableAmountText: money(preview.payableAmountCent), items: (preview.items || []).map((item) => ({ ...item, lineAmountText: money(item.lineAmountCent) })) } })).catch((error) => {
+      if (error.code === 401) wx.navigateTo({ url: '/pages/login/index' })
+      else wx.showToast({ title: error.msg || '预结算失败', icon: 'none' })
+    }).finally(() => this.setData({ loading: false }))
   },
   submitOrder() {
-    wx.showToast({ title: '下单成功', icon: 'success' })
-    wx.reLaunch({ url: '/pages/order/list/index' })
+    wx.showToast({ title: '订单创建将在会员订单链路接入后开放', icon: 'none' })
   }
 })

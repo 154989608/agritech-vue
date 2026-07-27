@@ -2,6 +2,11 @@
   padding-bottom: 220rpx;
 }
 
+.detail-swiper { height: 620rpx; background: #f1f5f9; }
+.detail-swiper__image { width: 100%; height: 100%; }
+.spec-item.is-selected { background: #e6f4dc; color: #3f6212; border: 1px solid #65a30d; }
+.spec-item.is-disabled { color: #94a3b8; text-decoration: line-through; }
+
 .detail-hero {
   min-height: 300rpx;
   color: #ffffff;

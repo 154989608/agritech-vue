@@ -1,162 +1,167 @@
 <template>
-  <div class="home-container">
-    <HomeBanner :version="version" />
+  <main class="mall-operations-screen">
+    <header class="screen-header">
+      <div class="screen-header__brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p>QIANSHAN SELECTED</p>
+          <h1>商城运营态势大屏</h1>
+        </div>
+      </div>
+      <div class="screen-header__status">
+        <span class="live-indicator"><i></i>数据实时汇总</span>
+        <time>{{ currentTime }}</time>
+        <el-button :icon="Refresh" :loading="loading" circle title="刷新经营数据" aria-label="刷新经营数据" @click="loadDashboard" />
+      </div>
+    </header>
 
-    <div class="home-body">
-      <section v-if="canViewShopDashboard" class="shop-dashboard">
-        <div class="shop-dashboard__header">
+    <el-alert v-if="error" class="screen-alert" type="error" :title="error" show-icon :closable="false" />
+
+    <section v-if="canViewDashboard" v-loading="loading" class="screen-content">
+      <div class="signal-strip" aria-label="商城核心经营指标">
+        <article v-for="metric in metrics" :key="metric.label" class="signal-item">
+          <div class="signal-item__icon" :class="metric.tone"><el-icon><component :is="metric.icon" /></el-icon></div>
           <div>
-            <h2>商城经营总览</h2>
-            <p>今日已支付订单、成交金额与待办事项</p>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
           </div>
-          <el-button :loading="shopDashboardLoading" icon="Refresh" circle title="刷新经营数据" @click="loadShopDashboard" />
-        </div>
-        <el-alert v-if="shopDashboardError" type="error" :title="shopDashboardError" show-icon :closable="false" />
-        <div v-else class="shop-dashboard__content" v-loading="shopDashboardLoading">
-          <div class="shop-dashboard__metrics">
-            <div class="shop-dashboard__metric">
-              <span>今日已支付订单</span><strong>{{ shopDashboard.todayPaidOrderCount }}</strong>
-            </div>
-            <div class="shop-dashboard__metric">
-              <span>今日成交金额</span><strong>{{ formatAmount(shopDashboard.todayPaidAmount) }}</strong>
-            </div>
-            <div class="shop-dashboard__metric">
-              <span>待发货</span><strong>{{ shopDashboard.pendingShipmentCount }}</strong>
-            </div>
-            <div class="shop-dashboard__metric">
-              <span>新增会员</span><strong>{{ shopDashboard.todayNewMemberCount }}</strong>
-            </div>
-          </div>
-          <div class="shop-dashboard__grid">
-            <div class="shop-dashboard__panel">
-              <h3>近 7 日成交趋势</h3>
-              <el-empty v-if="!shopDashboard.salesTrend.length" description="暂无成交数据" :image-size="54" />
-              <div v-else class="shop-dashboard__trend">
-                <div v-for="item in shopDashboard.salesTrend" :key="item.day" class="shop-dashboard__trend-item">
-                  <strong>{{ formatAmount(item.paidAmount) }}</strong><span>{{ item.day.slice(5) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="shop-dashboard__panel">
-              <h3>待办事项</h3>
-              <router-link class="shop-dashboard__todo" to="/shop/order"><span>待支付订单</span><strong>{{ shopDashboard.pendingPaymentCount }}</strong></router-link>
-              <router-link class="shop-dashboard__todo" to="/shop/order"><span>待发货订单</span><strong>{{ shopDashboard.pendingShipmentCount }}</strong></router-link>
-              <router-link class="shop-dashboard__todo" to="/shop/product"><span>库存预警 SKU</span><strong>{{ shopDashboard.lowStockSkuCount }}</strong></router-link>
-            </div>
-          </div>
-          <div class="shop-dashboard__panel">
-            <h3>近 30 日热销 SKU</h3>
-            <el-table :data="shopDashboard.hotSkus" size="small" empty-text="暂无销售数据">
-              <el-table-column prop="productName" label="商品" min-width="180" />
-              <el-table-column prop="skuName" label="SKU" min-width="120" />
-              <el-table-column prop="salesQuantity" label="销量" width="90" />
-              <el-table-column label="成交额" width="120"><template #default="scope">{{ formatAmount(scope.row.paidAmount) }}</template></el-table-column>
-            </el-table>
-          </div>
-        </div>
-      </section>
-
-      <!-- 核心指标卡 -->
-      <div class="section-title">
-        <span class="section-line"></span>
-        <span>核心指标概览</span>
-        <span class="section-line"></span>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi-card" v-for="item in kpiCards" :key="item.label">
-          <div class="kpi-icon" :style="{ background: item.bg }">{{ item.icon }}</div>
-          <div class="kpi-body">
-            <div class="kpi-value" :style="{ color: item.color }">{{ item.value }}</div>
-            <div class="kpi-label">{{ item.label }}</div>
-          </div>
-          <div class="kpi-trend" :class="item.trend > 0 ? 'up' : 'down'">
-            {{ item.trend > 0 ? '▲' : '▼' }} {{ Math.abs(item.trend) }}%
-            <div class="kpi-trend-label">较昨日</div>
-          </div>
-        </div>
+          <i class="signal-item__rail" :class="metric.tone"></i>
+        </article>
       </div>
 
-      <!-- 三大模块入口 -->
-      <div class="section-title" style="margin-top:32px">
-        <span class="section-line"></span>
-        <span>公交智看 · 三大分析模块</span>
-        <span class="section-line"></span>
-      </div>
-      <div class="module-grid">
-        <router-link
-          v-for="mod in modules"
-          :key="mod.title"
-          :to="mod.path"
-          class="module-card"
-          :style="{ '--accent': mod.color }"
-        >
-          <div class="module-icon">{{ mod.icon }}</div>
-          <div class="module-info">
-            <div class="module-title">{{ mod.title }}</div>
-            <div class="module-desc">{{ mod.desc }}</div>
-            <div class="module-tags">
-              <span v-for="t in mod.tags" :key="t" class="module-tag">{{ t }}</span>
+      <div class="screen-matrix">
+        <section class="screen-panel trend-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">GMV TREND</span>
+              <h2>近 7 日成交趋势</h2>
+            </div>
+            <div class="panel-heading__stat"><strong>{{ trendOrderCount }}</strong><span>支付订单</span></div>
+          </div>
+          <el-empty v-if="!dashboard.salesTrend.length && !loading" description="暂无成交数据" :image-size="76" />
+          <div v-else ref="trendChart" class="screen-chart trend-chart" aria-label="近七日成交趋势图"></div>
+        </section>
+
+        <section class="screen-panel focus-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">OPERATION FOCUS</span>
+              <h2>运营焦点</h2>
             </div>
           </div>
-          <div class="module-arrow">→</div>
-          <div class="module-glow"></div>
+          <div ref="focusChart" class="screen-chart focus-chart" aria-label="运营焦点分布图"></div>
+          <div class="focus-legend">
+            <span v-for="focus in focusItems" :key="focus.label"><i :style="{ background: focus.color }"></i>{{ focus.label }}<strong>{{ focus.value }}</strong></span>
+          </div>
+        </section>
+
+        <section class="screen-panel todo-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">ACTION QUEUE</span>
+              <h2>待办处置队列</h2>
+            </div>
+            <router-link to="/shop/order" class="panel-link">订单中心<el-icon><ArrowRight /></el-icon></router-link>
+          </div>
+          <router-link v-for="todo in todos" :key="todo.label" :to="todo.path" class="queue-item">
+            <span class="queue-item__status" :class="todo.tone"></span>
+            <span>{{ todo.label }}</span>
+            <strong>{{ todo.value }}</strong>
+            <el-icon><ArrowRight /></el-icon>
+          </router-link>
+        </section>
+
+        <section class="screen-panel hot-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">TOP SELLING SKU</span>
+              <h2>近 30 日热销 SKU</h2>
+            </div>
+            <router-link to="/shop/product" class="panel-link">商品管理<el-icon><ArrowRight /></el-icon></router-link>
+          </div>
+          <el-table :data="dashboard.hotSkus" size="small" empty-text="暂无销售数据">
+            <el-table-column type="index" label="#" width="54" />
+            <el-table-column prop="productName" label="商品" min-width="180" show-overflow-tooltip />
+            <el-table-column prop="skuName" label="SKU 规格" min-width="130" show-overflow-tooltip />
+            <el-table-column prop="salesQuantity" label="销量" width="88" align="right" />
+            <el-table-column label="成交额" width="128" align="right"><template #default="scope">{{ formatAmount(scope.row.paidAmount) }}</template></el-table-column>
+          </el-table>
+        </section>
+
+        <section class="screen-panel order-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">ORDER VOLUME</span>
+              <h2>近 7 日支付订单</h2>
+            </div>
+            <div class="panel-heading__stat"><strong>{{ trendOrderCount }}</strong><span>7 日累计</span></div>
+          </div>
+          <el-empty v-if="!dashboard.salesTrend.length && !loading" description="暂无订单数据" :image-size="66" />
+          <div v-else ref="orderChart" class="screen-chart analysis-chart" aria-label="近七日支付订单柱状图"></div>
+        </section>
+
+        <section class="screen-panel unit-price-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">AVERAGE ORDER VALUE</span>
+              <h2>近 7 日客单价</h2>
+            </div>
+            <div class="panel-heading__stat"><strong>{{ formatAmount(averageOrderValue) }}</strong><span>7 日均值</span></div>
+          </div>
+          <el-empty v-if="!dashboard.salesTrend.length && !loading" description="暂无客单价数据" :image-size="66" />
+          <div v-else ref="unitPriceChart" class="screen-chart analysis-chart" aria-label="近七日客单价走势图"></div>
+        </section>
+
+        <section class="screen-panel rank-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-heading__code">SKU REVENUE RANKING</span>
+              <h2>热销商品成交额排行</h2>
+            </div>
+          </div>
+          <el-empty v-if="!dashboard.hotSkus.length && !loading" description="暂无商品销售数据" :image-size="66" />
+          <div v-else ref="hotSkuChart" class="screen-chart analysis-chart" aria-label="热销商品成交额排行图"></div>
+        </section>
+      </div>
+
+      <nav class="operation-dock" aria-label="商城管理快捷入口">
+        <span class="operation-dock__label">商城管理</span>
+        <router-link v-for="entry in quickEntries" :key="entry.path" v-hasPermi="[entry.permission]" :to="entry.path" class="dock-entry">
+          <el-icon><component :is="entry.icon" /></el-icon>
+          <span>{{ entry.label }}</span>
         </router-link>
-      </div>
+      </nav>
+    </section>
 
-      <!-- 底部三栏 -->
-      <div class="bottom-grid">
-        <TrendChart />
-
-        <div class="tech-card">
-          <div class="card-header">
-            <span class="card-title">技术架构</span>
-          </div>
-          <div class="tech-grid">
-            <div class="tech-item" v-for="t in techStack" :key="t.name">
-              <div class="tech-dot" :style="{ background: t.color }"></div>
-              <div class="tech-info">
-                <div class="tech-name">{{ t.name }}</div>
-                <div class="tech-role">{{ t.role }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="log-card">
-          <div class="card-header">
-            <span class="card-title">更新日志</span>
-          </div>
-          <div class="log-list">
-            <div class="log-item" v-for="log in updateLogs" :key="log.version">
-              <div class="log-version">{{ log.version }}</div>
-              <div class="log-body">
-                <div class="log-date">{{ log.date }}</div>
-                <ul class="log-items">
-                  <li v-for="item in log.items" :key="item">{{ item }}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <el-empty v-else class="permission-empty" description="暂无商城经营总览权限" :image-size="96" />
+  </main>
 </template>
 
 <script setup name="Index">
-import { onMounted, reactive, ref } from 'vue'
-import HomeBanner from './components/HomeBanner.vue'
-import TrendChart from './components/TrendChart.vue'
-import { visualizationModules } from './visualization/modules'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { ArrowRight, CollectionTag, DataAnalysis, Goods, Picture, Refresh, Tickets, User } from '@element-plus/icons-vue'
+import echarts from '@/utils/echarts'
 import { shopApi } from '@/api/shop'
 import useUserStore from '@/store/modules/user'
 
-const version = ref('2.1.0')
 const userStore = useUserStore()
-const canViewShopDashboard = userStore.permissions.includes('*:*:*') || userStore.permissions.includes('shop:dashboard:query')
-const shopDashboardLoading = ref(false)
-const shopDashboardError = ref('')
-const shopDashboard = reactive({
+const canViewDashboard = userStore.permissions.includes('*:*:*') || userStore.permissions.includes('shop:dashboard:query')
+const loading = ref(false)
+const error = ref('')
+const currentTime = ref('')
+const trendChart = ref()
+const focusChart = ref()
+const orderChart = ref()
+const unitPriceChart = ref()
+const hotSkuChart = ref()
+let trendChartInstance
+let focusChartInstance
+let orderChartInstance
+let unitPriceChartInstance
+let hotSkuChartInstance
+let clockTimer
+
+const dashboard = reactive({
   todayPaidOrderCount: 0,
   todayPaidAmount: 0,
   pendingShipmentCount: 0,
@@ -167,274 +172,209 @@ const shopDashboard = reactive({
   hotSkus: []
 })
 
+const quickEntries = [
+  { label: '商品', path: '/shop/product', permission: 'shop:product:list', icon: Goods },
+  { label: '分类', path: '/shop/category', permission: 'shop:category:list', icon: CollectionTag },
+  { label: '订单', path: '/shop/order', permission: 'shop:order:list', icon: Tickets },
+  { label: '会员', path: '/shop/member', permission: 'shop:member:list', icon: User },
+  { label: 'Banner', path: '/shop/banner', permission: 'shop:banner:list', icon: Picture },
+  { label: '优惠券', path: '/shop/coupon', permission: 'shop:coupon:list', icon: DataAnalysis }
+]
+
+const metrics = computed(() => [
+  { label: '今日已支付订单', value: dashboard.todayPaidOrderCount, icon: Tickets, tone: 'lime' },
+  { label: '今日成交金额', value: formatAmount(dashboard.todayPaidAmount), icon: DataAnalysis, tone: 'coral' },
+  { label: '待发货订单', value: dashboard.pendingShipmentCount, icon: Goods, tone: 'gold' },
+  { label: '今日新增会员', value: dashboard.todayNewMemberCount, icon: User, tone: 'sky' }
+])
+
+const focusItems = computed(() => [
+  { label: '待支付', value: dashboard.pendingPaymentCount, color: '#d79e27' },
+  { label: '待发货', value: dashboard.pendingShipmentCount, color: '#e5484d' },
+  { label: '库存预警', value: dashboard.lowStockSkuCount, color: '#0f9d76' }
+])
+
+const todos = computed(() => [
+  { label: '待支付订单', value: dashboard.pendingPaymentCount, path: '/shop/order', tone: 'gold' },
+  { label: '待发货订单', value: dashboard.pendingShipmentCount, path: '/shop/order', tone: 'coral' },
+  { label: '库存预警 SKU', value: dashboard.lowStockSkuCount, path: '/shop/product', tone: 'lime' }
+])
+
+const trendOrderCount = computed(() => dashboard.salesTrend.reduce((total, item) => total + Number(item.paidOrderCount || 0), 0))
+const averageOrderValue = computed(() => trendOrderCount.value ? dashboard.salesTrend.reduce((total, item) => total + Number(item.paidAmount || 0), 0) / trendOrderCount.value : 0)
+
 function formatAmount(cents) {
   return `¥${(Number(cents || 0) / 100).toFixed(2)}`
 }
 
-function loadShopDashboard() {
-  shopDashboardLoading.value = true
-  shopDashboardError.value = ''
-  return shopApi.dashboard().then((data) => {
-    Object.assign(shopDashboard, data.data || {})
-  }).catch(() => {
-    shopDashboardError.value = '经营数据加载失败，请稍后重试'
-  }).finally(() => {
-    shopDashboardLoading.value = false
+function updateClock() {
+  currentTime.value = new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  }).format(new Date()).replaceAll('/', '.')
+}
+
+function renderTrendChart() {
+  if (!trendChart.value || !dashboard.salesTrend.length) return
+  trendChartInstance?.dispose()
+  trendChartInstance = echarts.init(trendChart.value)
+  trendChartInstance.setOption({
+    tooltip: { trigger: 'axis', valueFormatter: value => formatAmount(value) },
+    grid: { top: 30, right: 20, bottom: 30, left: 62 },
+    xAxis: { type: 'category', boundaryGap: false, data: dashboard.salesTrend.map(item => item.day?.slice(5)), axisLine: { lineStyle: { color: '#dbe1e8' } }, axisLabel: { color: '#6c7580' } },
+    yAxis: { type: 'value', axisLabel: { color: '#6c7580', formatter: value => `¥${(value / 100).toFixed(0)}` }, splitLine: { lineStyle: { color: '#edf0f3' } } },
+    series: [{ name: '成交额', type: 'line', smooth: true, symbolSize: 7, data: dashboard.salesTrend.map(item => item.paidAmount || 0), lineStyle: { color: '#e5484d', width: 3 }, itemStyle: { color: '#f26a6d' }, areaStyle: { color: 'rgba(229, 72, 77, 0.15)' } }]
   })
 }
 
-onMounted(() => {
-  if (canViewShopDashboard) {
-    loadShopDashboard()
-  }
-})
-
-const kpiCards = ref([
-  { label: '今日总客流量', value: '125,800', icon: '👥', color: '#00d4ff', bg: 'rgba(0,212,255,0.12)', trend: 8.5 },
-  { label: '在线运营车辆', value: '856',     icon: '🚌', color: '#ff9f43', bg: 'rgba(255,159,67,0.12)', trend: 3.2 },
-  { label: '当日运营班次', value: '4,328',   icon: '📅', color: '#00e5a0', bg: 'rgba(0,229,160,0.12)', trend: 1.8 },
-  { label: '平均准点率',   value: '92.5%',   icon: '⏱️', color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', trend: -0.5 },
-  { label: '平均满载率',   value: '78.3%',   icon: '📊', color: '#ff6b6b', bg: 'rgba(255,107,107,0.12)', trend: -2.1 },
-  { label: '运力缺口线路', value: '12条',    icon: '⚡', color: '#f9d423', bg: 'rgba(249,212,35,0.12)',  trend: 5.0 },
-])
-
-const moduleDetails = {
-  spaceTimeEvolution: { desc: '分析全网24小时客流趋势、区域分布热力图、OD出行流向，识别早晚高峰规律。', tags: ['时序分析', '热力图', 'OD流向', '高峰识别'] },
-  stationHeatEfficiency: { desc: '评估各站点客流承载能力与运营效能，输出站点效能评级，辅助站点优化决策。', tags: ['效能评级', 'TOP10', '换乘分析', '负荷率'] },
-  capacityDiagnosis: { desc: '诊断各线路运力供需匹配情况，输出运力缺口预警与智能调度优化建议。', tags: ['运力对比', '缺口预警', '班次优化', '调度建议'] },
+function renderFocusChart() {
+  if (!focusChart.value) return
+  focusChartInstance?.dispose()
+  focusChartInstance = echarts.init(focusChart.value)
+  focusChartInstance.setOption({
+    color: focusItems.value.map(item => item.color),
+    tooltip: { trigger: 'item', valueFormatter: value => `${value} 项` },
+    series: [{
+      type: 'pie', radius: ['52%', '75%'], center: ['50%', '48%'], avoidLabelOverlap: true,
+      label: { show: true, color: '#697380', formatter: '{b}\n{c} 项', fontSize: 11 },
+      labelLine: { lineStyle: { color: '#b7c0ca' } },
+      data: focusItems.value.map(item => ({ name: item.label, value: item.value }))
+    }]
+  })
 }
 
-const modules = visualizationModules.map((item) => ({ ...item, ...moduleDetails[item.key] }))
+function renderOrderChart() {
+  if (!orderChart.value || !dashboard.salesTrend.length) return
+  orderChartInstance?.dispose()
+  orderChartInstance = echarts.init(orderChart.value)
+  orderChartInstance.setOption({
+    tooltip: { trigger: 'axis', valueFormatter: value => `${value} 单` },
+    grid: { top: 24, right: 18, bottom: 30, left: 42 },
+    xAxis: { type: 'category', data: dashboard.salesTrend.map(item => item.day?.slice(5)), axisLine: { lineStyle: { color: '#dbe1e8' } }, axisLabel: { color: '#6c7580' } },
+    yAxis: { type: 'value', minInterval: 1, axisLabel: { color: '#6c7580' }, splitLine: { lineStyle: { color: '#edf0f3' } } },
+    series: [{ name: '支付订单', type: 'bar', barMaxWidth: 26, data: dashboard.salesTrend.map(item => item.paidOrderCount || 0), itemStyle: { color: '#3478f6', borderRadius: [3, 3, 0, 0] } }]
+  })
+}
 
-const techStack = ref([
-  { name: 'Spring Boot 2.x', role: '后端核心框架', color: '#6db33f' },
-  { name: 'MySQL 5.7+',      role: '业务与分析数据', color: '#4479a1' },
-  { name: 'Redis',           role: '缓存层',       color: '#d82c20' },
-  { name: 'Vue 3.4',         role: '前端框架',     color: '#42b883' },
-  { name: 'ECharts 5.x',    role: '数据可视化',   color: '#e43c59' },
-  { name: 'MyBatis',         role: 'ORM 框架',     color: '#e03c31' },
-  { name: 'Element Plus',    role: 'UI 组件库',    color: '#409eff' },
-])
+function renderUnitPriceChart() {
+  if (!unitPriceChart.value || !dashboard.salesTrend.length) return
+  unitPriceChartInstance?.dispose()
+  unitPriceChartInstance = echarts.init(unitPriceChart.value)
+  unitPriceChartInstance.setOption({
+    tooltip: { trigger: 'axis', valueFormatter: value => formatAmount(value) },
+    grid: { top: 24, right: 18, bottom: 30, left: 58 },
+    xAxis: { type: 'category', boundaryGap: false, data: dashboard.salesTrend.map(item => item.day?.slice(5)), axisLine: { lineStyle: { color: '#dbe1e8' } }, axisLabel: { color: '#6c7580' } },
+    yAxis: { type: 'value', axisLabel: { color: '#6c7580', formatter: value => `¥${(value / 100).toFixed(0)}` }, splitLine: { lineStyle: { color: '#edf0f3' } } },
+    series: [{ name: '客单价', type: 'line', smooth: true, symbolSize: 6, data: dashboard.salesTrend.map(item => {
+      const orders = Number(item.paidOrderCount || 0)
+      return orders ? Number(item.paidAmount || 0) / orders : 0
+    }), lineStyle: { color: '#0f9d76', width: 3 }, itemStyle: { color: '#0f9d76' }, areaStyle: { color: 'rgba(15, 157, 118, 0.12)' } }]
+  })
+}
 
-const updateLogs = ref([
-  { version: 'v2.1.0', date: '2026-03-09', items: ['新增三大可视化大屏模块', '升级深色科技风UI设计', '修复表格时间为空的异常'] },
-  { version: 'v2.0.0', date: '2026-02-26', items: ['添加公交可视化数据接口支持', '新增公交智看可视化目录', '上线 56 个 REST 接口'] },
-  { version: 'v1.1.0', date: '2025-11-11', items: ['新增在线用户管理', '接入 Swagger 全局 Token', '新增后端参数校验'] },
-  { version: 'v1.0.0', date: '2025-11-08', items: ['城市公交客流大数据分析系统正式启动'] },
-])
+function renderHotSkuChart() {
+  if (!hotSkuChart.value || !dashboard.hotSkus.length) return
+  hotSkuChartInstance?.dispose()
+  hotSkuChartInstance = echarts.init(hotSkuChart.value)
+  const skus = dashboard.hotSkus.slice(0, 6).reverse()
+  hotSkuChartInstance.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: value => formatAmount(value) },
+    grid: { top: 14, right: 28, bottom: 14, left: 104 },
+    xAxis: { type: 'value', axisLabel: { color: '#6c7580', formatter: value => `¥${(value / 100).toFixed(0)}` }, splitLine: { lineStyle: { color: '#edf0f3' } } },
+    yAxis: { type: 'category', data: skus.map(item => item.productName), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#59636f', width: 88, overflow: 'truncate' } },
+    series: [{ name: '成交额', type: 'bar', barMaxWidth: 18, data: skus.map(item => item.paidAmount || 0), itemStyle: { color: '#e5484d', borderRadius: [0, 3, 3, 0] } }]
+  })
+}
+
+async function loadDashboard() {
+  loading.value = true
+  error.value = ''
+  try {
+    const response = await shopApi.dashboard()
+    Object.assign(dashboard, response.data || {})
+    await nextTick()
+    renderTrendChart()
+    renderFocusChart()
+    renderOrderChart()
+    renderUnitPriceChart()
+    renderHotSkuChart()
+  } catch {
+    error.value = '经营数据加载失败，请稍后重试'
+  } finally {
+    loading.value = false
+  }
+}
+
+function resizeCharts() {
+  trendChartInstance?.resize()
+  focusChartInstance?.resize()
+  orderChartInstance?.resize()
+  unitPriceChartInstance?.resize()
+  hotSkuChartInstance?.resize()
+}
+
+onMounted(() => {
+  updateClock()
+  clockTimer = window.setInterval(updateClock, 1000)
+  if (canViewDashboard) loadDashboard()
+  window.addEventListener('resize', resizeCharts)
+})
+
+onBeforeUnmount(() => {
+  window.clearInterval(clockTimer)
+  window.removeEventListener('resize', resizeCharts)
+  trendChartInstance?.dispose()
+  focusChartInstance?.dispose()
+  orderChartInstance?.dispose()
+  unitPriceChartInstance?.dispose()
+  hotSkuChartInstance?.dispose()
+})
 </script>
 
 <style scoped lang="scss">
-.home-container {
+.mall-operations-screen {
   min-height: calc(100vh - 84px);
-  background: #f4f6fa;
-  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  padding: 18px 24px 24px;
+  background: #f4f6f8;
+  color: #20252b;
 }
-
-.home-body {
-  padding: 28px 32px 40px;
-  max-width: 1280px;
-  margin: 0 auto;
+.screen-header, .screen-content, .screen-alert { width: 100%; margin: 0; }
+.screen-header {
+  display: flex; align-items: center; justify-content: space-between; min-height: 76px; padding: 0 4px 16px; border-bottom: 1px solid #dfe5eb;
+  &__brand { display: flex; align-items: center; gap: 12px; }
+  &__brand p { margin: 0 0 3px; color: #e5484d; font-size: 10px; font-weight: 700; letter-spacing: 2.3px; }
+  &__brand h1 { margin: 0; font-size: 24px; font-weight: 650; letter-spacing: 1px; }
+  &__status { display: flex; align-items: center; gap: 16px; color: #6c7580; font-size: 12px; }
+  &__status time { font-variant-numeric: tabular-nums; letter-spacing: .6px; }
+  :deep(.el-button) { border-color: #d5dce5; background: #fff; color: #e5484d; }
 }
-
-.shop-dashboard {
-  margin-bottom: 32px;
-  padding: 22px;
-  border: 1px solid #d9e7d7;
-  border-radius: 8px;
-  background: #fbfdf9;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-    h2 { margin: 0; color: #285334; font-size: 18px; }
-    p { margin: 6px 0 0; color: #7a8d7b; font-size: 12px; }
-  }
-
-  &__metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  &__metric, &__panel { border: 1px solid #e4ece1; border-radius: 6px; background: #fff; }
-  &__metric {
-    padding: 16px;
-    span { display: block; color: #718073; font-size: 12px; }
-    strong { display: block; margin-top: 7px; color: #2e633c; font-size: 23px; }
-  }
-  &__grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin: 12px 0; }
-  &__panel {
-    padding: 16px;
-    h3 { margin: 0 0 12px; color: #37513d; font-size: 14px; }
-  }
-  &__trend { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; min-height: 70px; align-items: end; }
-  &__trend-item { display: grid; gap: 7px; min-width: 0; padding: 9px 5px; background: #f2f8ef; text-align: center; }
-  &__trend-item strong { overflow: hidden; color: #3d7749; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-  &__trend-item span { color: #819083; font-size: 11px; }
-  &__todo { display: flex; justify-content: space-between; padding: 9px 0; color: #556c5a; text-decoration: none; }
-  &__todo + &__todo { border-top: 1px solid #edf2eb; }
-  &__todo strong { color: #d27736; }
+.brand-mark { width: 12px; height: 32px; border: 2px solid #e5484d; border-radius: 2px; box-shadow: inset 0 -12px 0 #3478f6; }
+.live-indicator { display: inline-flex; align-items: center; gap: 7px; }
+.live-indicator i { width: 7px; height: 7px; border-radius: 50%; background: #0f9d76; box-shadow: 0 0 0 4px rgba(15, 157, 118, .12); }
+.screen-alert { margin-top: 14px; }
+.screen-content { padding-top: 18px; }
+.signal-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #dfe5eb; background: #fff; }
+.signal-item {
+  position: relative; display: flex; align-items: center; gap: 13px; min-width: 0; padding: 17px 18px; border-right: 1px solid #e8ecf0;
+  &:last-child { border-right: 0; }
+  &__icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid currentColor; border-radius: 4px; font-size: 17px; }
+  span { display: block; color: #727c88; font-size: 12px; }.signal-item strong { display: block; margin-top: 5px; color: #20252b; font-size: 22px; font-variant-numeric: tabular-nums; }
+  &__rail { position: absolute; left: 18px; bottom: 0; width: 42px; height: 2px; }
+  .lime { color: #0f9d76; background: #e7f6f1; }.coral { color: #e5484d; background: #fff0f0; }.gold { color: #c1830e; background: #fff7e4; }.sky { color: #3478f6; background: #edf4ff; }
+  .signal-item__rail.lime { background: #0f9d76; }.signal-item__rail.coral { background: #e5484d; }.signal-item__rail.gold { background: #d79e27; }.signal-item__rail.sky { background: #3478f6; }
 }
-
-.section-title {
-  display: flex; align-items: center; gap: 14px;
-  font-size: 15px; font-weight: bold; color: #2c3e60;
-  margin-bottom: 18px;
-  .section-line {
-    flex: 1; height: 1px;
-    background: linear-gradient(90deg, rgba(0,80,200,0.15), transparent);
-    &:last-child { background: linear-gradient(90deg, transparent, rgba(0,80,200,0.15)); }
-  }
-}
-
-.kpi-grid {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
-
-  .kpi-card {
-    background: #fff; border-radius: 10px; padding: 18px 16px;
-    display: flex; flex-direction: column; gap: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    &:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-
-    .kpi-icon {
-      width: 42px; height: 42px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-    }
-    .kpi-body {
-      .kpi-value { font-size: 22px; font-weight: bold; line-height: 1; }
-      .kpi-label { font-size: 12px; color: #8a9bb5; margin-top: 5px; }
-    }
-    .kpi-trend {
-      font-size: 12px; font-weight: bold;
-      .kpi-trend-label { font-size: 10px; color: #aaa; font-weight: normal; margin-top: 1px; }
-      &.up { color: #00b87a; }
-      &.down { color: #ff5252; }
-    }
-  }
-}
-
-.module-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
-
-  .module-card {
-    position: relative; overflow: hidden;
-    background: #fff; border-radius: 12px; padding: 28px 24px;
-    display: flex; align-items: center; gap: 20px;
-    text-decoration: none;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-    transition: transform 0.25s, box-shadow 0.25s;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-      .module-arrow { transform: translateX(5px); }
-      .module-glow { opacity: 1; }
-    }
-
-    &::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: var(--accent);
-    }
-
-    .module-icon {
-      font-size: 36px; flex-shrink: 0;
-      width: 60px; height: 60px;
-      background: color-mix(in srgb, var(--accent) 12%, transparent);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .module-info {
-      flex: 1;
-      .module-title { font-size: 16px; font-weight: bold; color: #1a2a4a; margin-bottom: 6px; }
-      .module-desc { font-size: 12px; color: #7a8ca0; line-height: 1.7; }
-      .module-tags {
-        margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;
-        .module-tag {
-          font-size: 11px; padding: 2px 8px; border-radius: 10px;
-          background: color-mix(in srgb, var(--accent) 10%, transparent);
-          color: var(--accent);
-          border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-        }
-      }
-    }
-
-    .module-arrow { font-size: 18px; color: var(--accent); flex-shrink: 0; transition: transform 0.25s; }
-
-    .module-glow {
-      position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s;
-      background: radial-gradient(ellipse at top right, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%);
-      pointer-events: none;
-    }
-  }
-}
-
-.bottom-grid {
-  margin-top: 24px;
-  display: grid; grid-template-columns: 1fr 280px 320px; gap: 18px;
-
-  .tech-card, .log-card {
-    background: #fff; border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border: 1px solid rgba(0,0,0,0.05);
-    overflow: hidden;
-  }
-
-  .card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px; border-bottom: 1px solid #f0f2f6;
-    .card-title { font-size: 14px; font-weight: bold; color: #2c3e60; }
-  }
-
-  .tech-grid {
-    padding: 12px 16px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    .tech-item {
-      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-      background: #f8f9fc; border-radius: 6px;
-      .tech-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-      .tech-info {
-        .tech-name { font-size: 12px; font-weight: 600; color: #2c3e60; }
-        .tech-role { font-size: 10px; color: #8a9bb5; margin-top: 1px; }
-      }
-    }
-  }
-
-  .log-list {
-    padding: 12px 18px; display: flex; flex-direction: column; gap: 14px;
-    max-height: 260px; overflow-y: auto;
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-track { background: transparent; }
-    &::-webkit-scrollbar-thumb { background: #d0d8e8; border-radius: 2px; }
-
-    .log-item {
-      display: flex; gap: 12px;
-      .log-version {
-        font-size: 11px; font-weight: bold; color: #fff;
-        background: linear-gradient(135deg, #0050ff, #00d4ff);
-        padding: 2px 8px; border-radius: 10px;
-        white-space: nowrap; height: fit-content; margin-top: 2px;
-      }
-      .log-body {
-        flex: 1;
-        .log-date { font-size: 11px; color: #aab0c0; margin-bottom: 5px; }
-        .log-items {
-          margin: 0; padding: 0 0 0 14px;
-          li { font-size: 12px; color: #5a6a80; line-height: 1.8; }
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 900px) {
-  .shop-dashboard {
-    &__metrics { grid-template-columns: repeat(2, 1fr); }
-    &__grid { grid-template-columns: 1fr; }
-  }
-}
+.screen-matrix { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.screen-panel { border: 1px solid #dfe5eb; background: #fff; overflow: hidden; }
+.trend-panel { grid-column: span 7; min-height: 330px; }.focus-panel { grid-column: span 5; min-height: 330px; }.todo-panel { grid-column: span 4; }.hot-panel { grid-column: span 8; }.order-panel, .unit-price-panel, .rank-panel { grid-column: span 4; min-height: 282px; }
+.panel-heading { display: flex; justify-content: space-between; align-items: flex-start; min-height: 57px; padding: 17px 18px 0; }
+.panel-heading__code { display: block; margin-bottom: 5px; color: #8c96a3; font-size: 10px; letter-spacing: 1.4px; }.panel-heading h2 { margin: 0; color: #20252b; font-size: 16px; font-weight: 600; }
+.panel-heading__stat { display: flex; flex-direction: column; text-align: right; }.panel-heading__stat strong { color: #e5484d; font-size: 21px; font-variant-numeric: tabular-nums; }.panel-heading__stat span { color: #7a8490; font-size: 11px; }
+.screen-chart { width: 100%; }.trend-chart { height: 254px; }.focus-chart { height: 205px; }.analysis-chart { height: 205px; }
+.focus-legend { display: flex; justify-content: center; gap: 15px; padding: 0 12px 14px; }.focus-legend span { display: inline-flex; align-items: center; gap: 5px; color: #6e7782; font-size: 11px; }.focus-legend i { width: 7px; height: 7px; border-radius: 50%; }.focus-legend strong { color: #2a3038; font-weight: 600; }
+.panel-link { display: inline-flex; align-items: center; gap: 4px; color: #e5484d; font-size: 12px; text-decoration: none; }
+.queue-item { display: grid; grid-template-columns: 8px 1fr auto 16px; align-items: center; gap: 10px; margin: 0 18px; padding: 17px 0; border-top: 1px solid #edf0f3; color: #59636f; text-decoration: none; font-size: 13px; }.queue-item strong { color: #252b33; font-size: 19px; font-variant-numeric: tabular-nums; }.queue-item > .el-icon { color: #9ca6b1; }.queue-item__status { width: 7px; height: 7px; border-radius: 50%; }.queue-item__status.gold { background: #d79e27; }.queue-item__status.coral { background: #e5484d; }.queue-item__status.lime { background: #0f9d76; }
+.hot-panel :deep(.el-table) { margin: 10px 18px 14px; width: calc(100% - 36px); --el-table-bg-color: transparent; --el-table-tr-bg-color: transparent; --el-table-header-bg-color: #f7f9fb; --el-table-border-color: #e6ebf0; --el-table-text-color: #4c5662; --el-table-header-text-color: #77818d; --el-table-row-hover-bg-color: #fff5f5; }
+.operation-dock { display: flex; align-items: center; gap: 5px; margin-top: 12px; padding: 8px 12px; border: 1px solid #dfe5eb; background: #fff; }.operation-dock__label { margin-right: 10px; color: #7a8490; font-size: 12px; white-space: nowrap; }.dock-entry { display: inline-flex; align-items: center; gap: 6px; padding: 8px 11px; border: 1px solid transparent; border-radius: 4px; color: #4e5864; font-size: 12px; text-decoration: none; }.dock-entry:hover { border-color: #f3b4b7; background: #fff5f5; color: #e5484d; }
+.permission-empty { min-height: 360px; color: #68727e; }
+@media (max-width: 1100px) { .signal-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }.signal-item:nth-child(2) { border-right: 0; }.signal-item:nth-child(-n+2) { border-bottom: 1px solid #dfe5eb; }.trend-panel, .focus-panel, .todo-panel, .hot-panel, .order-panel, .unit-price-panel, .rank-panel { grid-column: span 6; }.operation-dock { flex-wrap: wrap; } }
+@media (max-width: 760px) { .mall-operations-screen { padding: 14px; }.screen-header { align-items: flex-start; gap: 12px; }.screen-header__status { flex-wrap: wrap; justify-content: end; gap: 9px; }.screen-header__brand h1 { font-size: 19px; }.screen-header__status time { display: none; }.trend-panel, .focus-panel, .todo-panel, .hot-panel, .order-panel, .unit-price-panel, .rank-panel { grid-column: span 12; }.signal-item { padding: 14px; }.signal-item strong { font-size: 18px; }.dock-entry { padding: 7px 8px; }.dock-entry span { display: none; } }
 </style>

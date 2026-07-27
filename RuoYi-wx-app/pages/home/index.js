@@ -1,17 +1,24 @@
-const { homePromos, homeCategories, featuredStore, featuredBanners } = require('../../utils/mock')
+const { getHome } = require('../../api/shop')
+const money = (cent) => (Number(cent || 0) / 100).toFixed(2)
+const withPrice = (products) => (products || []).map((product) => ({ ...product, priceText: money(product.priceCent) }))
 
 Page({
   data: {
     greeting: '早上好',
-    homePromos: [],
-    homeCategories: [],
-    featuredStore: { name: '', sold: '', minOrder: '', badge: '', tip: '', products: [] },
-    featuredBanners: []
+    banners: [], categories: [], latestProducts: [], hotProducts: [], loading: true
   },
   onLoad() {
     const hour = new Date().getHours()
     const greeting = hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好'
-    this.setData({ greeting, homePromos, homeCategories, featuredStore, featuredBanners })
+    this.setData({ greeting })
+    this.loadHome()
+  },
+  loadHome() {
+    this.setData({ loading: true })
+    return getHome().then((home) => this.setData({
+      banners: home.banners || [], categories: home.categories || [],
+      latestProducts: withPrice(home.latestProducts), hotProducts: withPrice(home.hotProducts)
+    })).catch((error) => wx.showToast({ title: error.msg || '加载失败', icon: 'none' })).finally(() => this.setData({ loading: false }))
   },
   goSearch() {
     wx.navigateTo({ url: '/pages/search/index' })
@@ -29,6 +36,6 @@ Page({
     if (path) wx.navigateTo({ url: path })
   },
   onPullDownRefresh() {
-    setTimeout(() => wx.stopPullDownRefresh(), 600)
+    this.loadHome().finally(() => wx.stopPullDownRefresh())
   }
 })

@@ -23,6 +23,7 @@
   height: 120rpx;
   border-radius: 20rpx;
   flex: none;
+  background: #f1f5f9;
 }
 
 .search-result__body {

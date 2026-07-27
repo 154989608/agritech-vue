@@ -1,15 +1,18 @@
 App({
   globalData: {
     appName: 'RuoYi Shop',
-    apiBaseUrl: 'https://example.com/api',
+    apiBaseUrl: '',
     userInfo: null,
     token: '',
     cartCount: 0
   },
   onLaunch() {
+    const { getApiBaseUrl } = require('./utils/config')
     const token = wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
-    const cartCount = wx.getStorageSync('cartCount') || 0
+    const cart = wx.getStorageSync('mall-cart') || []
+
+    this.globalData.apiBaseUrl = getApiBaseUrl()
 
     if (token) {
       this.globalData.token = token
@@ -19,6 +22,6 @@ App({
       this.globalData.userInfo = userInfo
     }
 
-    this.globalData.cartCount = cartCount
+    this.globalData.cartCount = Array.isArray(cart) ? cart.reduce((total, item) => total + Number(item.quantity || 0), 0) : 0
   }
 })

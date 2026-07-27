@@ -3,19 +3,24 @@ package com.ruoyi.system.domain.shop;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 public class MallProduct extends BaseEntity
 {
     private Long productId;
+    @Excel(name = "分类ID", cellType = Excel.ColumnType.NUMERIC)
     @NotNull(message = "商品分类不能为空") private Long categoryId;
+    @Excel(name = "商品名称")
     @NotBlank(message = "商品名称不能为空") private String productName;
+    @Excel(name = "副标题")
     private String subtitle;
     private String mainImage;
     private String imagesJson;
     private String detailHtml;
     private String productParamsJson;
     private String specSchemaJson;
+    @Excel(name = "状态", readConverterExp = "0=草稿,1=上架,2=下架")
     private String status;
     private Integer version;
     private List<MallProductSku> skus;

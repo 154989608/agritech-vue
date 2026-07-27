@@ -1,3 +1,6 @@
+let loadingCount = 0
+let handlingUnauthorized = false
+
 function request(options) {
   const app = getApp()
   const { url, method = 'GET', data = {}, header = {}, showLoading = true } = options || {}
@@ -6,9 +9,7 @@ function request(options) {
     return Promise.reject(new Error('request url is required'))
   }
 
-  if (showLoading) {
-    wx.showLoading({ title: '加载中...' })
-  }
+  if (showLoading && loadingCount++ === 0) wx.showLoading({ title: '加载中...' })
 
   return new Promise((resolve, reject) => {
     wx.request({
@@ -22,17 +23,34 @@ function request(options) {
       },
       success(res) {
         const { statusCode, data: responseData } = res
+        if (statusCode === 401) {
+          if (!handlingUnauthorized) {
+            handlingUnauthorized = true
+            wx.removeStorageSync('token')
+            wx.removeStorageSync('userInfo')
+            app.globalData.token = ''
+            app.globalData.userInfo = null
+            wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' })
+            setTimeout(() => { handlingUnauthorized = false }, 500)
+          }
+          reject({ code: 401, msg: '登录已失效' })
+          return
+        }
+        if (statusCode >= 200 && statusCode < 300 && responseData && responseData.code !== 200) {
+          reject({ code: responseData.code, msg: responseData.msg || '请求失败' })
+          return
+        }
         if (statusCode >= 200 && statusCode < 300) {
           resolve(responseData)
           return
         }
-        reject(new Error((responseData && responseData.msg) || `HTTP ${statusCode}`))
+        reject({ code: statusCode, msg: (responseData && responseData.msg) || `HTTP ${statusCode}` })
       },
       fail(err) {
-        reject(err)
+        reject({ code: 0, msg: err.errMsg || '网络连接失败' })
       },
       complete() {
-        if (showLoading) wx.hideLoading()
+        if (showLoading && --loadingCount === 0) wx.hideLoading()
       }
     })
   })
