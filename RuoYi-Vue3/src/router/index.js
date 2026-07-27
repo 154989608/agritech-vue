@@ -27,20 +27,6 @@ import Layout from '@/layout'
 // 公共路由
 export const constantRoutes = [
   {
-    path: '/shop-admin',
-    component: Layout,
-    redirect: '/shop-admin/overview',
-    meta: { title: '商城运营', icon: 'shopping' },
-    children: [
-      {
-        path: 'overview',
-        component: () => import('@/views/shopAdmin/index'),
-        name: 'ShopAdmin',
-        meta: { title: '商城运营', icon: 'shopping' }
-      }
-    ]
-  },
-  {
     path: '/redirect',
     component: Layout,
     hidden: true,

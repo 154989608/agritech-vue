@@ -3,6 +3,59 @@
     <HomeBanner :version="version" />
 
     <div class="home-body">
+      <section v-if="canViewShopDashboard" class="shop-dashboard">
+        <div class="shop-dashboard__header">
+          <div>
+            <h2>商城经营总览</h2>
+            <p>今日已支付订单、成交金额与待办事项</p>
+          </div>
+          <el-button :loading="shopDashboardLoading" icon="Refresh" circle title="刷新经营数据" @click="loadShopDashboard" />
+        </div>
+        <el-alert v-if="shopDashboardError" type="error" :title="shopDashboardError" show-icon :closable="false" />
+        <div v-else class="shop-dashboard__content" v-loading="shopDashboardLoading">
+          <div class="shop-dashboard__metrics">
+            <div class="shop-dashboard__metric">
+              <span>今日已支付订单</span><strong>{{ shopDashboard.todayPaidOrderCount }}</strong>
+            </div>
+            <div class="shop-dashboard__metric">
+              <span>今日成交金额</span><strong>{{ formatAmount(shopDashboard.todayPaidAmount) }}</strong>
+            </div>
+            <div class="shop-dashboard__metric">
+              <span>待发货</span><strong>{{ shopDashboard.pendingShipmentCount }}</strong>
+            </div>
+            <div class="shop-dashboard__metric">
+              <span>新增会员</span><strong>{{ shopDashboard.todayNewMemberCount }}</strong>
+            </div>
+          </div>
+          <div class="shop-dashboard__grid">
+            <div class="shop-dashboard__panel">
+              <h3>近 7 日成交趋势</h3>
+              <el-empty v-if="!shopDashboard.salesTrend.length" description="暂无成交数据" :image-size="54" />
+              <div v-else class="shop-dashboard__trend">
+                <div v-for="item in shopDashboard.salesTrend" :key="item.day" class="shop-dashboard__trend-item">
+                  <strong>{{ formatAmount(item.paidAmount) }}</strong><span>{{ item.day.slice(5) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="shop-dashboard__panel">
+              <h3>待办事项</h3>
+              <router-link class="shop-dashboard__todo" to="/shop/order"><span>待支付订单</span><strong>{{ shopDashboard.pendingPaymentCount }}</strong></router-link>
+              <router-link class="shop-dashboard__todo" to="/shop/order"><span>待发货订单</span><strong>{{ shopDashboard.pendingShipmentCount }}</strong></router-link>
+              <router-link class="shop-dashboard__todo" to="/shop/product"><span>库存预警 SKU</span><strong>{{ shopDashboard.lowStockSkuCount }}</strong></router-link>
+            </div>
+          </div>
+          <div class="shop-dashboard__panel">
+            <h3>近 30 日热销 SKU</h3>
+            <el-table :data="shopDashboard.hotSkus" size="small" empty-text="暂无销售数据">
+              <el-table-column prop="productName" label="商品" min-width="180" />
+              <el-table-column prop="skuName" label="SKU" min-width="120" />
+              <el-table-column prop="salesQuantity" label="销量" width="90" />
+              <el-table-column label="成交额" width="120"><template #default="scope">{{ formatAmount(scope.row.paidAmount) }}</template></el-table-column>
+            </el-table>
+          </div>
+        </div>
+      </section>
+
       <!-- 核心指标卡 -->
       <div class="section-title">
         <span class="section-line"></span>
@@ -91,12 +144,50 @@
 </template>
 
 <script setup name="Index">
-import { ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import HomeBanner from './components/HomeBanner.vue'
 import TrendChart from './components/TrendChart.vue'
 import { visualizationModules } from './visualization/modules'
+import { shopApi } from '@/api/shop'
+import useUserStore from '@/store/modules/user'
 
 const version = ref('2.1.0')
+const userStore = useUserStore()
+const canViewShopDashboard = userStore.permissions.includes('*:*:*') || userStore.permissions.includes('shop:dashboard:query')
+const shopDashboardLoading = ref(false)
+const shopDashboardError = ref('')
+const shopDashboard = reactive({
+  todayPaidOrderCount: 0,
+  todayPaidAmount: 0,
+  pendingShipmentCount: 0,
+  todayNewMemberCount: 0,
+  pendingPaymentCount: 0,
+  lowStockSkuCount: 0,
+  salesTrend: [],
+  hotSkus: []
+})
+
+function formatAmount(cents) {
+  return `¥${(Number(cents || 0) / 100).toFixed(2)}`
+}
+
+function loadShopDashboard() {
+  shopDashboardLoading.value = true
+  shopDashboardError.value = ''
+  return shopApi.dashboard().then((data) => {
+    Object.assign(shopDashboard, data.data || {})
+  }).catch(() => {
+    shopDashboardError.value = '经营数据加载失败，请稍后重试'
+  }).finally(() => {
+    shopDashboardLoading.value = false
+  })
+}
+
+onMounted(() => {
+  if (canViewShopDashboard) {
+    loadShopDashboard()
+  }
+})
 
 const kpiCards = ref([
   { label: '今日总客流量', value: '125,800', icon: '👥', color: '#00d4ff', bg: 'rgba(0,212,255,0.12)', trend: 8.5 },
@@ -144,6 +235,43 @@ const updateLogs = ref([
   padding: 28px 32px 40px;
   max-width: 1280px;
   margin: 0 auto;
+}
+
+.shop-dashboard {
+  margin-bottom: 32px;
+  padding: 22px;
+  border: 1px solid #d9e7d7;
+  border-radius: 8px;
+  background: #fbfdf9;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    h2 { margin: 0; color: #285334; font-size: 18px; }
+    p { margin: 6px 0 0; color: #7a8d7b; font-size: 12px; }
+  }
+
+  &__metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  &__metric, &__panel { border: 1px solid #e4ece1; border-radius: 6px; background: #fff; }
+  &__metric {
+    padding: 16px;
+    span { display: block; color: #718073; font-size: 12px; }
+    strong { display: block; margin-top: 7px; color: #2e633c; font-size: 23px; }
+  }
+  &__grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin: 12px 0; }
+  &__panel {
+    padding: 16px;
+    h3 { margin: 0 0 12px; color: #37513d; font-size: 14px; }
+  }
+  &__trend { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; min-height: 70px; align-items: end; }
+  &__trend-item { display: grid; gap: 7px; min-width: 0; padding: 9px 5px; background: #f2f8ef; text-align: center; }
+  &__trend-item strong { overflow: hidden; color: #3d7749; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+  &__trend-item span { color: #819083; font-size: 11px; }
+  &__todo { display: flex; justify-content: space-between; padding: 9px 0; color: #556c5a; text-decoration: none; }
+  &__todo + &__todo { border-top: 1px solid #edf2eb; }
+  &__todo strong { color: #d27736; }
 }
 
 .section-title {
@@ -300,6 +428,13 @@ const updateLogs = ref([
         }
       }
     }
+  }
+}
+
+@media (max-width: 900px) {
+  .shop-dashboard {
+    &__metrics { grid-template-columns: repeat(2, 1fr); }
+    &__grid { grid-template-columns: 1fr; }
   }
 }
 </style>
