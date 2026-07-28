@@ -19,6 +19,8 @@ test('member coupon APIs use the member principal and existing transactional cla
   assert.match(controller, /getMemberIdOrNull/)
   assert.match(couponService, /@Transactional/)
   assert.match(couponService, /increaseReceived/)
+  assert.match(couponService, /setCouponNo\(IdUtils\.fastSimpleUUID\(\)\)/)
+  assert.doesNotMatch(couponService, /setCouponNo\(IdUtils\.fastUUID\(\)\)/)
   assert.match(mapper, /selectAvailableCoupons/)
   assert.match(mapper, /countByCouponAndMember/)
   assert.match(xml, /received_quantity &lt; total_quantity/)

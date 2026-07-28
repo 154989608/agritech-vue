@@ -76,7 +76,7 @@ public class MallMemberCouponServiceImpl implements IMallMemberCouponService
     private MallMemberCoupon snapshot(MallCoupon coupon, Long memberId, Date now)
     {
         MallMemberCoupon memberCoupon = new MallMemberCoupon();
-        memberCoupon.setCouponNo(IdUtils.fastUUID());
+        memberCoupon.setCouponNo(IdUtils.fastSimpleUUID());
         memberCoupon.setCouponId(coupon.getCouponId());
         memberCoupon.setMemberId(memberId);
         memberCoupon.setCouponNameSnapshot(coupon.getCouponName());
