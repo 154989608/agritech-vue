@@ -1,6 +1,6 @@
 page {
-  background: #f6f7f5;
-  color: #1f2937;
+  background: #f3f6f2;
+  color: #1d2b22;
   font-size: 28rpx;
 }
 
@@ -12,24 +12,25 @@ button::after {
   min-height: 100vh;
   padding: 24rpx;
   box-sizing: border-box;
-  background: #f6f7f5;
+  background: #f3f6f2;
 }
 
 .page--tab {
-  padding-bottom: 176rpx;
+  padding-bottom: 190rpx;
 }
 
 .card {
   background: #ffffff;
   border-radius: 16rpx;
   padding: 24rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.06);
+  margin-bottom: 16rpx;
+  box-shadow: 0 6rpx 20rpx rgba(28, 61, 40, 0.06);
   box-sizing: border-box;
 }
 
 .card--soft {
-  background: #fafbf8;
+  background: #f7fbf5;
+  box-shadow: inset 0 0 0 1rpx #e1eddf;
 }
 
 .section-title {
@@ -40,28 +41,39 @@ button::after {
 }
 
 .section-title__main {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 700;
 }
 
 .section-title__sub {
-  color: #6b7280;
+  color: #3f7550;
   font-size: 24rpx;
 }
 
 .subtle,
 .muted {
-  color: #6b7280;
+  color: #748178;
+}
+
+.btn-primary,
+.btn-secondary {
+  min-height: 80rpx;
+  padding: 0 28rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 80rpx;
+  box-sizing: border-box;
 }
 
 .btn-primary {
-  background: #e56a32;
+  background: #276749;
   color: #ffffff;
 }
 
 .btn-secondary {
-  background: #eaf7dc;
-  color: #3f7a2f;
+  background: #e6f2e6;
+  color: #276749;
 }
 
 .pill,
@@ -71,22 +83,23 @@ button::after {
   padding: 8rpx 16rpx;
   border-radius: 999rpx;
   font-size: 22rpx;
-  background: #eaf7dc;
-  color: #4f7c39;
+  background: #e7f3e6;
+  color: #276749;
 }
 
 .chip--warm {
-  background: #fff7ed;
-  color: #c2410c;
+  background: #fff1dc;
+  color: #b84b1f;
 }
 
 .search-bar {
   display: flex;
   align-items: center;
-  padding: 18rpx 22rpx;
-  border-radius: 22rpx;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 8rpx 24rpx rgba(56, 94, 35, 0.08);
+  min-height: 84rpx;
+  padding: 0 22rpx;
+  border-radius: 16rpx;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1rpx #dce9dc;
 }
 
 .search-bar__text {
@@ -98,9 +111,10 @@ button::after {
 .input {
   width: 100%;
   box-sizing: border-box;
-  background: #f8fafc;
-  border-radius: 18rpx;
-  padding: 22rpx 24rpx;
+  min-height: 84rpx;
+  background: #f8fbf8;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
   font-size: 28rpx;
 }
 
@@ -121,7 +135,7 @@ button::after {
 }
 
 .price {
-  color: #e23d28;
+  color: #d94d30;
   font-weight: 700;
 }
 
@@ -131,7 +145,7 @@ button::after {
 }
 
 .empty {
-  padding: 80rpx 32rpx;
+  padding: 72rpx 32rpx;
   text-align: center;
-  color: #64748b;
+  color: #748178;
 }
