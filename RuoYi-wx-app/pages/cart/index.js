@@ -61,7 +61,8 @@ Page({
         return item
       }
 
-      return { ...item, quantity: Math.max(1, Math.min(999, item.quantity + delta)) }
+      if (!item.available) return item
+      return { ...item, quantity: Math.max(1, Math.min(Number(item.availableStock || 1), 99, item.quantity + delta)) }
     })
 
     this.syncCart(cartItems)

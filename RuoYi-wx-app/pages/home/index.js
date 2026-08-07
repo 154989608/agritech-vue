@@ -5,7 +5,7 @@ const withPrice = (products) => (products || []).map((product) => ({ ...product,
 Page({
   data: {
     greeting: '早上好',
-    banners: [], categories: [], latestProducts: [], hotProducts: [], loading: true
+    banners: [], categories: [], latestProducts: [], hotProducts: [], loading: true, loadFailed: false
   },
   onLoad() {
     const hour = new Date().getHours()
@@ -14,11 +14,11 @@ Page({
     this.loadHome()
   },
   loadHome() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadFailed: false })
     return getHome().then((home) => this.setData({
       banners: home.banners || [], categories: home.categories || [],
       latestProducts: withPrice(home.latestProducts), hotProducts: withPrice(home.hotProducts)
-    })).catch((error) => wx.showToast({ title: error.msg || '加载失败', icon: 'none' })).finally(() => this.setData({ loading: false }))
+    })).catch((error) => { this.setData({ loadFailed: true }); wx.showToast({ title: error.msg || '加载失败', icon: 'none' }) }).finally(() => this.setData({ loading: false }))
   },
   goSearch() {
     wx.navigateTo({ url: '/pages/search/index' })

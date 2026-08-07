@@ -16,7 +16,7 @@
 }
 
 .category-nav__item.is-active {
-  background: linear-gradient(135deg, #ff6a3d 0%, #ff8a00 100%);
+  background: #e56a32;
   color: #ffffff;
 }
 
@@ -40,6 +40,7 @@
 .category-banner {
   padding: 24rpx;
   border-radius: 24rpx;
+  background: #e56a32;
   color: #ffffff;
   margin-bottom: 20rpx;
 }

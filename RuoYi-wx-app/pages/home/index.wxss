@@ -2,6 +2,35 @@
   padding-top: 16rpx;
 }
 
+.home-skeleton__search,
+.home-skeleton__banner,
+.home-skeleton__section view {
+  background: #e8ece5;
+}
+
+.home-skeleton__search {
+  height: 76rpx;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.home-skeleton__banner {
+  height: 320rpx;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.home-skeleton__section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.home-skeleton__section view {
+  height: 210rpx;
+  border-radius: 16rpx;
+}
+
 .home-top {
   display: flex;
   align-items: center;

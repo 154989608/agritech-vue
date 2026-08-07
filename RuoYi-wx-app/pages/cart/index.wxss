@@ -15,7 +15,7 @@
 
 .cart-item__check.is-checked {
   border-color: #ff8a00;
-  background: linear-gradient(135deg, #ff6a3d 0%, #ff8a00 100%);
+  background: #e56a32;
 }
 
 .cart-item__cover {
@@ -80,6 +80,18 @@
   border-radius: 18rpx;
 }
 
+.cart-settlement {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(140rpx + env(safe-area-inset-bottom));
+  z-index: 90;
+  padding: 18rpx 22rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4rpx 18rpx rgba(15, 23, 42, 0.12);
+}
+
 .empty__title {
   display: block;
   font-size: 34rpx;
@@ -91,4 +103,7 @@
   margin-top: 10rpx;
   color: #64748b;
   font-size: 24rpx;
+}
+.cart-page {
+  padding-bottom: 320rpx;
 }

@@ -13,7 +13,7 @@
 }
 
 .filter-pill.is-active {
-  background: linear-gradient(135deg, #ff6a3d 0%, #ff8a00 100%);
+  background: #e56a32;
   color: #ffffff;
 }
 

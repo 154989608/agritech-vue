@@ -4,7 +4,7 @@ function normalize(item) {
   const skuId = Number(item && item.skuId)
   const quantity = Number(item && item.quantity)
   if (!Number.isSafeInteger(skuId) || skuId < 1 || !Number.isSafeInteger(quantity) || quantity < 1) return null
-  return { skuId, quantity: Math.min(quantity, 999), selected: item.selected !== false }
+  return { skuId, quantity: Math.min(quantity, 99), selected: item.selected !== false }
 }
 
 function getAll() {
@@ -23,7 +23,7 @@ function save(items) {
 function addOrMerge(skuId, quantity) {
   const items = getAll()
   const index = items.findIndex((item) => item.skuId === Number(skuId))
-  if (index >= 0) items[index].quantity = Math.min(999, items[index].quantity + Number(quantity))
+  if (index >= 0) items[index].quantity = Math.min(99, items[index].quantity + Number(quantity))
   else items.push({ skuId: Number(skuId), quantity: Number(quantity), selected: true })
   return save(items)
 }

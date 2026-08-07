@@ -7,5 +7,6 @@
         <text class="address-item__phone">{{item.receiverPhone}}</text><text class="address-item__detail">{{item.provinceName}}{{item.cityName}}{{item.districtName}}{{item.detailAddress}}</text><view class="address-item__actions"><text wx:if="{{item.isDefault !== '1'}}" class="section-title__sub" catchtap="setDefault" data-id="{{item.addressId}}">设为默认</text><text class="section-title__sub" catchtap="editAddress" data-id="{{item.addressId}}">编辑</text><text class="section-title__sub" catchtap="deleteAddress" data-id="{{item.addressId}}">删除</text></view>
       </view>
     </view>
+    <view wx:if="{{!loading && !addressList.length}}" class="empty"><text class="empty__title">暂无收货地址</text><text class="empty__desc">添加地址后可用于订单结算。</text><button class="btn-secondary empty__btn" bindtap="addAddress">新增收货地址</button></view>
   </view>
 </view>

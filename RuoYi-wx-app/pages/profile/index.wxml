@@ -20,6 +20,6 @@
       <button class="profile-service-item profile-contact" open-type="contact"><view class="profile-service-item__icon profile-contact__icon">服</view><text class="profile-service-item__title">联系客服</text></button>
     </view>
   </view>
-  <button class="profile-logout" bindtap="handleServiceTap" data-action="logout">退出登录</button>
+  <button wx:if="{{userInfo.loggedIn}}" class="profile-logout" bindtap="handleServiceTap" data-action="logout">退出登录</button>
   <app-tabbar current="/pages/profile/index" />
 </view>

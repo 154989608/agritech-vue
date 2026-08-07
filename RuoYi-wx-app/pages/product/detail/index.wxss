@@ -53,6 +53,13 @@
   font-size: 24rpx;
 }
 
+.detail-stock {
+  display: block;
+  margin-top: 18rpx;
+  color: #64748b;
+  font-size: 22rpx;
+}
+
 .chip-row,
 .spec-list {
   display: flex;
@@ -81,4 +88,8 @@
 .detail-bar__btn {
   flex: 1;
   border-radius: 18rpx;
+}
+
+.stepper__btn--disabled {
+  color: #cbd5e1;
 }

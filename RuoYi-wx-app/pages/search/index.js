@@ -28,5 +28,9 @@ Page({
     wx.setStorageSync(HISTORY_KEY, history)
     this.setData({ history })
   },
+  clearHistory() {
+    wx.removeStorageSync(HISTORY_KEY)
+    this.setData({ history: [] })
+  },
   goDetail(e) { wx.navigateTo({ url: `/pages/product/detail/index?id=${e.currentTarget.dataset.id}` }) }
 })

@@ -5,7 +5,7 @@ const money = (cent) => (Number(cent || 0) / 100).toFixed(2)
 
 Page({
   data: {
-    product: {}, images: [], params: [], selectedSkuId: null, quantity: 1, loading: true
+    product: {}, images: [], params: [], selectedSkuId: null, selectedSku: null, quantity: 1, loading: true
   },
   onLoad(options) {
     this.loadProduct(options.id)
@@ -14,11 +14,12 @@ Page({
     return getProduct(productId).then((product) => {
       const images = parseArray(product.imagesJson, product.mainImage)
       const params = parseArray(product.productParamsJson, [])
-      this.setData({ product: { ...product, priceText: money(product.priceCent), marketPriceText: money(product.marketPriceCent) }, images, params, selectedSkuId: product.skus && product.skus.find((sku) => !sku.soldOut)?.skuId || null })
+      const selectedSku = product.skus && product.skus.find((sku) => !sku.soldOut) || null
+      this.setData({ product: { ...product, priceText: money(product.priceCent), marketPriceText: money(product.marketPriceCent) }, images, params, selectedSkuId: selectedSku && selectedSku.skuId, selectedSku })
     }).catch((error) => wx.showToast({ title: error.msg || '商品加载失败', icon: 'none' })).finally(() => this.setData({ loading: false }))
   },
-  selectSku(e) { this.setData({ selectedSkuId: Number(e.currentTarget.dataset.id) }) },
-  changeQuantity(e) { this.setData({ quantity: Math.max(1, this.data.quantity + Number(e.currentTarget.dataset.delta)) }) },
+  selectSku(e) { const selectedSku = (this.data.product.skus || []).find((sku) => sku.skuId === Number(e.currentTarget.dataset.id)); if (selectedSku) this.setData({ selectedSkuId: selectedSku.skuId, selectedSku, quantity: selectedSku.soldOut ? 1 : Math.min(this.data.quantity, selectedSku.availableStock) }) },
+  changeQuantity(e) { const sku = this.selectedSku(); if (!sku || sku.soldOut) return; this.setData({ quantity: Math.max(1, Math.min(this.data.quantity + Number(e.currentTarget.dataset.delta), sku.availableStock)) }) },
   selectedSku() { return (this.data.product.skus || []).find((sku) => sku.skuId === this.data.selectedSkuId) },
   addCart() {
     const sku = this.selectedSku()

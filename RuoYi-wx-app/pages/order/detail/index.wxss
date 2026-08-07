@@ -1,4 +1,15 @@
 .order-status, .item, .amount-row { display: flex; align-items: center; justify-content: space-between; }
+.order-progress { display: flex; align-items: flex-start; }
+.order-progress__step { position: relative; flex: 1; color: #94a3b8; font-size: 20rpx; text-align: center; }
+.order-progress__step:not(:last-child)::after { position: absolute; top: 12rpx; left: calc(50% + 14rpx); width: calc(100% - 28rpx); height: 2rpx; background: #e2e8f0; content: ''; }
+.order-progress__dot { width: 20rpx; height: 20rpx; margin: 2rpx auto 10rpx; border-radius: 50%; background: #e2e8f0; }
+.order-progress__step.is-active { color: #4f7c39; }
+.order-progress__step.is-active .order-progress__dot { background: #4f7c39; }
+.order-progress__step.is-current { font-weight: 700; }
+.order-canceled { border-left: 6rpx solid #94a3b8; }
+.order-canceled__title, .order-canceled__desc { display: block; }
+.order-canceled__title { font-weight: 700; }
+.order-canceled__desc { margin-top: 8rpx; color: #64748b; font-size: 22rpx; }
 .address-name, .address-detail { display: block; margin-top: 12rpx; }
 .address-name { font-weight: 700; }
 .address-detail, .item__body .muted { color: #64748b; font-size: 24rpx; }

@@ -1,4 +1,6 @@
 <view class="page page--tab page--home">
+  <view wx:if="{{loading}}" class="home-skeleton"><view class="home-skeleton__search"></view><view class="home-skeleton__banner"></view><view class="home-skeleton__section"><view></view><view></view><view></view><view></view></view></view>
+  <block wx:else>
   <view class="home-top"><view class="home-search" bindtap="goSearch"><text class="home-search__icon">搜</text><text class="home-search__text">搜索商品、产地或分类</text></view></view>
   <swiper wx:if="{{banners.length}}" class="home-banner" indicator-dots autoplay circular>
     <swiper-item wx:for="{{banners}}" wx:key="bannerId"><image class="home-banner__image" src="{{item.imageUrl}}" mode="aspectFill" bindtap="goDetail" data-id="{{item.targetValue}}" /></swiper-item>
@@ -12,6 +14,8 @@
   <view class="card" wx:if="{{hotProducts.length}}"><view class="section-title"><text class="section-title__main">热门商品</text></view>
     <view class="store-goods"><view class="store-good" wx:for="{{hotProducts}}" wx:key="productId" bindtap="goDetail" data-id="{{item.productId}}"><image class="store-good__cover" src="{{item.mainImage}}" mode="aspectFill" /><text class="store-good__name">{{item.productName}}</text><text class="store-good__price">¥{{item.priceText}}</text></view></view>
   </view>
-  <view wx:if="{{!loading && !banners.length && !latestProducts.length}}" class="card empty"><text class="empty__title">暂无可售商品</text><text class="empty__desc">请稍后刷新再试。</text></view>
+  <view wx:if="{{loadFailed}}" class="card empty"><text class="empty__title">商品加载失败</text><text class="empty__desc">请检查网络后重新加载。</text><button class="btn-primary empty__btn" bindtap="loadHome">重新加载</button></view>
+  <view wx:elif="{{!banners.length && !latestProducts.length}}" class="card empty"><text class="empty__title">暂无可售商品</text><text class="empty__desc">请稍后刷新再试。</text></view>
+  </block>
   <app-tabbar current="/pages/home/index" />
 </view>
