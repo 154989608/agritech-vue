@@ -9,8 +9,8 @@ spring:
       # 用于：用户、菜单、角色、字典等系统业务数据
       master:
         url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ry_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
-        username: ${MYSQL_USERNAME:root}
-        password: ${MYSQL_PASSWORD:654zwhs321}
+        username: ${MYSQL_USERNAME}
+        password: ${MYSQL_PASSWORD}
         driver-class-name: ${MYSQL_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
 
       # ================= 从库结构（当前停用） =================
@@ -54,15 +54,15 @@ spring:
 
       # Web 监控配置
       webStatFilter:
-        enabled: true
+        enabled: ${DRUID_MONITORING_ENABLED:false}
       statViewServlet:
-        enabled: true
+        enabled: ${DRUID_MONITORING_ENABLED:false}
         # 设置白名单，不填则允许所有访问
         allow:
         url-pattern: /druid/*
         # 控制台管理用户名和密码
-        login-username: ruoyi
-        login-password: 123456
+        login-username: ${DRUID_LOGIN_USERNAME:}
+        login-password: ${DRUID_LOGIN_PASSWORD:}
       # 过滤器配置
       filter:
         stat:

@@ -15,7 +15,7 @@
     "pages/login/index"
   ],
   "window": {
-    "navigationBarTitleText": "RuoYi Shop",
+    "navigationBarTitleText": "黔山优选商城",
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
     "backgroundTextStyle": "light",

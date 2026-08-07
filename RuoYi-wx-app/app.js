@@ -1,6 +1,6 @@
 App({
   globalData: {
-    appName: 'RuoYi Shop',
+    appName: '黔山优选商城',
     apiBaseUrl: '',
     userInfo: null,
     token: '',

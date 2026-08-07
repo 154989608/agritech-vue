@@ -12,6 +12,12 @@ public class CacheConstants
      */
     public static final String LOGIN_TOKEN_KEY = "login_tokens:";
 
+    /** 小程序会员 token redis key */
+    public static final String APP_MEMBER_TOKEN_KEY = "app:member:token:";
+
+    /** 小程序会员 token 反向索引 redis key */
+    public static final String APP_MEMBER_TOKENS_KEY = "app:member:tokens:";
+
     /**
      * 验证码 redis key
      */

@@ -1,7 +1,7 @@
 const API_BASE_URLS = {
   develop: 'http://127.0.0.1:8080',
-  trial: 'https://trial-api.example.com',
-  release: 'https://api.example.com'
+  trial: '',
+  release: ''
 }
 
 function getApiBaseUrl() {

@@ -11,6 +11,8 @@ import com.ruoyi.system.domain.shop.app.AppProductSkuDto;
 public interface AppShopMapper {
     List<AppBannerDto> selectActiveBanners();
     List<AppCategoryDto> selectEnabledCategories();
+    List<AppProductDto> selectLatestProducts();
+    List<AppProductDto> selectHotProducts();
     List<AppProductDto> selectPublishedProducts(@Param("categoryId") Long categoryId, @Param("keyword") String keyword);
     AppProductDto selectPublishedProductById(Long productId);
     List<AppProductSkuDto> selectPublishedSkusByProductId(Long productId);

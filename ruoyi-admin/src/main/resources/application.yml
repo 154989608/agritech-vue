@@ -1,13 +1,13 @@
 # 项目相关配置
 ruoyi:
   # 名称
-  name: RuoYi
+  name: 黔山优选商城
   # 版本
   version: 3.9.0
   # 版权年份
   copyrightYear: 2025
-  # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  profile: D:/ruoyi/uploadPath
+  # 文件上传目录，生产环境应挂载到持久化存储
+  profile: ${RUOYI_PROFILE:/var/lib/agritech/uploads}
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证
@@ -64,7 +64,7 @@ spring:
   devtools:
     restart:
       # 热部署开关
-      enabled: true
+      enabled: ${SPRING_DEVTOOLS_RESTART_ENABLED:false}
   # redis 配置
   redis:
     # 地址
@@ -94,7 +94,7 @@ token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥
-  secret: abcdefghijklmnopqrstuvwxyz
+  secret: ${TOKEN_SECRET}
   # 令牌有效期（默认30分钟）
   expireTime: 30
 
@@ -103,6 +103,10 @@ wechat:
     app-id: ${WECHAT_MINI_APP_ID:}
     app-secret: ${WECHAT_MINI_APP_SECRET:}
     session-minutes: ${WECHAT_MINI_SESSION_MINUTES:43200}
+
+mall:
+  payment:
+    manual-confirm-enabled: ${MALL_MANUAL_PAYMENT_ENABLED:false}
 
 # MyBatis配置
 mybatis:
@@ -122,14 +126,14 @@ pagehelper:
 # Swagger配置
 swagger:
   # 是否开启swagger
-  enabled: true
+  enabled: ${SWAGGER_ENABLED:false}
   # 请求前缀
   pathMapping: /dev-api
 
 # 防止XSS攻击
 xss:
   # 过滤开关
-  enabled: true
+  enabled: ${XSS_ENABLED:true}
   # 排除链接（多个用逗号分隔）
   excludes: /system/notice
   # 匹配链接

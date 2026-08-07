@@ -43,3 +43,16 @@ test('mini program exposes coupon requests and a registered coupon list page', a
   assert.match(page, /listMemberCoupons/)
   assert.match(app, /pages\/coupon\/list\/index/)
 })
+
+test('public coupon received state is loaded with one batch query', async () => {
+  const [controller, mapper, xml] = await Promise.all([
+    source('ruoyi-admin/src/main/java/com/ruoyi/web/controller/app/AppMemberCouponController.java'),
+    source('ruoyi-system/src/main/java/com/ruoyi/system/mapper/shop/MallMemberCouponMapper.java'),
+    source('ruoyi-system/src/main/resources/mapper/shop/MallMemberCouponMapper.xml')
+  ])
+
+  assert.match(controller, /selectReceivedCouponIds/)
+  assert.doesNotMatch(controller, /countByCouponAndMember/)
+  assert.match(mapper, /selectReceivedCouponIds/)
+  assert.match(xml, /id="selectReceivedCouponIds"[\s\S]*<foreach/)
+})

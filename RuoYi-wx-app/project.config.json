@@ -1,5 +1,5 @@
 {
-  "description": "RuoYi mini program",
+  "description": "黔山优选商城小程序",
   "packOptions": {
     "ignore": [],
     "include": []
@@ -44,7 +44,7 @@
   "compileType": "miniprogram",
   "libVersion": "3.17.0",
   "appid": "wx38f0924993005f75",
-  "projectname": "ruoyi-app",
+  "projectname": "agritech-shop",
   "miniprogramRoot": "./",
   "simulatorPluginLibVersion": {},
   "editorSetting": {}
